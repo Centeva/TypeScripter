@@ -1,0 +1,5 @@
+C:\Source\nrc\rps\TypeScripter\bin\Release\TypeScripter.exe.config
+C:\Source\nrc\rps\TypeScripter\bin\Release\TypeScripter.exe
+C:\Source\nrc\rps\TypeScripter\bin\Release\TypeScripter.pdb
+C:\Source\nrc\rps\TypeScripter\obj\Release\TypeScripter.exe
+C:\Source\nrc\rps\TypeScripter\obj\Release\TypeScripter.pdb
