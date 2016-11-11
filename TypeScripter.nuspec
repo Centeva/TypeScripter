@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0"?>
 <package>
   <metadata>
-    <id>TypeScripter</id>
+    <id>Centeva.Ct-TypeScripter</id>
     <version>$version$</version>
-    <title>TypeScripter</title>
+    <title>Ct-TypeScripter</title>
     <authors>Darrel Brown</authors>
     <owners>Darrel Brown</owners>
       <requireLicenseAcceptance>false</requireLicenseAcceptance>

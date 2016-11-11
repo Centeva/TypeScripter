@@ -56,7 +56,9 @@
     <None Include="App.config" />
     <None Include="Options.json" />
     <None Include="packages.config" />
-    <None Include="TypeScripter.nuspec" />
+    <None Include="TypeScripter.nuspec">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
