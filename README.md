@@ -24,7 +24,7 @@ Options file should be a JSON file with these properties.
 - `ControllerBaseClassNames`: [Optional] The naming convention for your controllers. Defaults to "ApiController".
 
 Example: ```{
-    "Source": "C:\\Source\\nrc\\rps\\App.Client\\bin",
+    "Source": "C:\\Source\\Path\\To\\App.Client\\bin",
     "Destination": "C:\\Source\\App\\Models\\Generated",
     "Files": ["*.Client.dll"],
     "ControllerBaseClassNames": ["ApiController"]

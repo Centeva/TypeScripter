@@ -1,5 +1,5 @@
 ﻿{
-    "Source": "C:\\Source\\nrc\\rps\\Inspections.Client\\bin",
+    "Source": "C:\\Source\\Project\\Project.Client\\bin",
     "Destination": "C:\\Source\\TypescripterTesting",
     "Files": ["*.Client.dll"],
     "ControllerBaseClassNames": ["ApiController"]
