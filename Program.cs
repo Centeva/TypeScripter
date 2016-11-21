@@ -15,7 +15,7 @@ namespace TypeScripter
 
 		static int Main(string[] args)
 		{
-			if (args.Length != 1 || args.Length != 2)
+			if (args.Length != 1 && args.Length != 2)
 			{
 				Console.WriteLine("Usage: typescripter.exe <Options File Path>");
 				Console.WriteLine("       typescripter.exe <dll source path> <model target path>");
