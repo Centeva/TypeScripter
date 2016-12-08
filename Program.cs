@@ -31,7 +31,7 @@ namespace TypeScripter
 
 			if (args.Length == 1)
 			{
-				if (File.Exists(args[0]))
+				if (File.Exists(args[0])) 
 				{
 					try
 					{
