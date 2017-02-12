@@ -1,6 +1,7 @@
 ﻿{
-    "Source": "C:\\Source\\Project\\Project.Client\\bin",
-    "Destination": "C:\\Source\\TypescripterTesting",
-    "Files": ["*.Client.dll"],
-    "ControllerBaseClassNames": ["ApiController"]
+	"Source": "C:\\Source\\Project\\Project.Client\\bin",
+	"Destination": "C:\\Source\\TypescripterTesting",
+	"Files": [ "*.Client.dll" ],
+	"ControllerBaseClassNames": [ "ApiController" ],
+	"ApiRelativePath": "inspections/api/action"
 }
