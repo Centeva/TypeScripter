@@ -20,6 +20,7 @@ namespace TypeScripter.Generators
 			var sb = new StringBuilder();
 
 			sb.AppendLine("// tslint:disable:max-line-length");
+			sb.AppendLine("// tslint:disable:member-ordering");
 			sb.AppendLine("import { Injectable } from '@angular/core';");
 			sb.AppendLine("import { Http, Response } from '@angular/http';");
 			sb.AppendLine("import { Observable } from 'rxjs';");
@@ -57,7 +58,7 @@ namespace TypeScripter.Generators
 					var url = CombineUri("/", apiRelativePath, "/api/action/", apiController.Name.Substring(0, apiController.Name.Length - "Controller".Length), method.Name);
 					var httpMethodName = GetHttpMethodName(method);
 					if (httpMethodName == null) { continue; }
-					if (httpMethodName != "post" || parameters.Length == 0)
+					if (httpMethodName != "post")
 					{
 						if (parameters.Length > 0)
 						{
@@ -80,7 +81,7 @@ namespace TypeScripter.Generators
 							method.ReturnType.ToTypeScriptType(), 
 							httpMethodName, 
 							url, 
-							allParameters.Length > 0 ? ", " + allParameters[0].Name : "", 
+							allParameters.Length > 0 ? ", " + allParameters[0].Name : ", null", 
 							GetResultMapperExpression(method.ReturnType));
 						sb.AppendLine();
 					}

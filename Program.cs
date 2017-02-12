@@ -38,7 +38,8 @@ namespace TypeScripter
 			var apiControllers = assemblies.SelectMany(GetApiControllers).ToList();
 
 			// Get all types that are returned from an API call or are in the parameter list
-			var allModels = new HashSet<Type>(apiControllers.SelectMany(GetModelsFromController));
+			var topLevelModels = new HashSet<Type>(apiControllers.SelectMany(GetModelsFromController));
+			var allModels = new HashSet<Type>(topLevelModels);
 
 			// Now recursively search the top level models for child models
 			foreach (var model in allModels.ToArray())
@@ -50,7 +51,7 @@ namespace TypeScripter
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
 				EntityGenerator.Generate(targetPath, allModels),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, allModels, targetPath)
+				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, topLevelModels, targetPath)
 			);
 			
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
