@@ -61,7 +61,7 @@ namespace TypeScripter
 
 		private static int LoadOptions(string[] args)
 		{
-			if (args.Length != 1 && args.Length != 2)
+			if (args.Length != 1 && args.Length > 3)
 			{
 				Console.WriteLine("Usage: typescripter.exe <Options File Path>");
 				Console.WriteLine("       typescripter.exe <dll source path> <model target path> <api relative path (optional)>");
