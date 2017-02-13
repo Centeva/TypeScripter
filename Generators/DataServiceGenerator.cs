@@ -17,6 +17,11 @@ namespace TypeScripter.Generators
 			}
 			const string methodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}(`{4}`{5}).map((res: Response) => {6}).catch(this.handleError),";
 
+			if (apiRelativePath.EndsWith("/"))
+			{
+				apiRelativePath = apiRelativePath.Substring(0, apiRelativePath.Length - 1);
+			}
+
 			var sb = new StringBuilder();
 
 			sb.AppendLine("// tslint:disable:max-line-length");
@@ -34,6 +39,8 @@ namespace TypeScripter.Generators
 			sb.AppendLine("@Injectable()");
 			sb.AppendLine("export class DataService {");
 			sb.AppendLine("\tconstructor(private http: Http) {}");
+			sb.AppendLine();
+			sb.AppendLine(string.Format("\tapiRelativePath: string = '{0}';", apiRelativePath));
 			sb.AppendLine();
 
 			int methodCount = 0;
@@ -55,7 +62,7 @@ namespace TypeScripter.Generators
 					names.Add(method.Name);
 					var parameters = method.GetParameters();
 					var joinedParameters = string.Join(", ", parameters.Select(p => p.Name + ": " + p.ParameterType.ToTypeScriptType()));
-					var url = CombineUri("/", apiRelativePath, apiController.Name.Substring(0, apiController.Name.Length - "Controller".Length), method.Name);
+					var url = CombineUri("${this.apiRelativePath}", apiController.Name.Substring(0, apiController.Name.Length - "Controller".Length), method.Name);
 					var httpMethodName = GetHttpMethodName(method);
 					if (httpMethodName == null) { continue; }
 					if (httpMethodName != "post")
