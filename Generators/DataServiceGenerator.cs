@@ -55,7 +55,7 @@ namespace TypeScripter.Generators
 					names.Add(method.Name);
 					var parameters = method.GetParameters();
 					var joinedParameters = string.Join(", ", parameters.Select(p => p.Name + ": " + p.ParameterType.ToTypeScriptType()));
-					var url = CombineUri("/", apiRelativePath, "/api/action/", apiController.Name.Substring(0, apiController.Name.Length - "Controller".Length), method.Name);
+					var url = CombineUri("/", apiRelativePath, apiController.Name.Substring(0, apiController.Name.Length - "Controller".Length), method.Name);
 					var httpMethodName = GetHttpMethodName(method);
 					if (httpMethodName == null) { continue; }
 					if (httpMethodName != "post")
