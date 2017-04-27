@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -69,7 +70,7 @@ namespace TypeScripter.Generators
 					{
 						if (parameters.Length > 0)
 						{
-							url = url + "?" + string.Join("&", parameters.Select(p => string.Format("{0}=${{{0}}}", p.Name)));
+							url = url + "?" + string.Join("&", parameters.Select(GenerateGetString));
 						}
 						sb.AppendFormat(methodTemplate, method.Name.Camelize(), joinedParameters, method.ReturnType.ToTypeScriptType(), httpMethodName, url, "", GetResultMapperExpression(method.ReturnType));
 						sb.AppendLine();
@@ -115,6 +116,15 @@ namespace TypeScripter.Generators
 			Utils.WriteIfChanged(sb.ToString(), Path.Combine(targetPath, "DataService.ts"));
 			Console.WriteLine("Generated a data service with {0} controllers and {1} methods.", apiControllers.Count, methodCount);
 			return new List<string> {"DataService"};
+		}
+
+		private static string GenerateGetString(ParameterInfo p)
+		{
+			if (p.ParameterType == typeof(DateTime))
+			{
+				return string.Format("{0}=${{{0}.toISOString()}}", p.Name);
+			}
+			return string.Format("{0}=${{{0}}}", p.Name);
 		}
 
 	    private static string CombineUri(params string[] parts) {
