@@ -122,9 +122,9 @@ namespace TypeScripter.Generators
 			if (p.ParameterType == typeof(DateTime))
 			{
 				return string.Format("{0}=${{{0}.toISOString()}}", p.Name);
-			} else if (p.ParameterType.IsArray)
+			} else if (p.ParameterType == typeof(IEnumerable<string>) || p.ParameterType == typeof(IEnumerable<int>))
 			{
-				return string.Format("{0}=${{{0}.map(x => `{0}=${{x}} `).join('&')}}", p.Name);
+				return string.Format("${{{0}.map(x => `{0}=${{x}}`).join('&')}}", p.Name);
 			}
 			return string.Format("{0}=${{{0}}}", p.Name);
 		}
