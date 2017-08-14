@@ -31,7 +31,7 @@ namespace TypeScripter.Generators
 			var allProps = t.GetAllPropertiesInType();
 			StringBuilder sb = new StringBuilder();
 
-			if (allProps.Any(p => p.Type == "moment.Moment" || p.Type == "moment.Moment?")) {
+			if (allProps.Any(p => p.Type.Name == "moment.Moment" || p.Type.Name == "moment.Moment?")) {
 				sb.AppendLine("import * as moment from 'moment';");
 			}
 			if (!string.IsNullOrWhiteSpace(baseClass)) {
@@ -53,7 +53,7 @@ namespace TypeScripter.Generators
 			sb.AppendLine(" {");
 			var declaredProps = t.GetDeclaredPropertiesInType();
 			foreach (var prop in declaredProps) {
-				sb.AppendLine(string.Format("\tpublic {0}: {1};", prop.Name, prop.Type));
+				sb.AppendLine(string.Format("\tpublic {0}: {1} {2};", prop.Name, prop.Type.Name, prop.Type.Initializer));
 			}
 
 			if (!t.IsAbstract) {
@@ -71,8 +71,10 @@ namespace TypeScripter.Generators
 				sb.AppendLine("\t\tif (fields) {");
 
 				var modelProps = GetModelPropertiesInType(t);
+				var modelItterables = GetItterableModelPropertiesInType(t);
 				sb.AppendLine(string.Join("\n", modelProps.Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = new {1}(fields.{0}); }}", prop.Name, prop.Type))));
-				sb.AppendLine(string.Join("\n", allProps.Where(x => x.Type == "moment.Moment").Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = moment(fields.{0}); }}", prop.Name))));
+				sb.AppendLine(string.Join("\n", allProps.Where(x => x.Type.Name == "moment.Moment").Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = moment(fields.{0}); }}", prop.Name))));
+				sb.AppendLine(string.Join("\n", modelItterables.Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = fields.{0}.map(x => new {1}(x)); }}", prop.Name, prop.Type))));
 
 				sb.AppendLine("\t\t\tObject.assign(this, fields);");
 				sb.AppendLine("\t\t}");
@@ -93,6 +95,17 @@ namespace TypeScripter.Generators
 					.OrderBy(p => p.Name)
 					.Select(p => p.Name)
 					.ToArray();
+		}
+
+		private static NameAndType[] GetItterableModelPropertiesInType(Type t)
+		{
+			return t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+				.Where(x => x.PropertyType.IsGenericType && typeof (IEnumerable<object>).IsAssignableFrom(x.PropertyType))
+				.Select(p => new NameAndType() {Name = p.Name, Type = p.PropertyType.GetGenericArguments()[0].ToTypeScriptType() })
+				.Distinct()
+				.OrderBy(p => p.Name)
+				.ToArray();
+
 		}
 
 		private static NameAndType[] GetModelPropertiesInType(Type t) {

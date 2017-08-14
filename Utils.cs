@@ -8,13 +8,13 @@ namespace TypeScripter
 {
 	public static class Utils
 	{
-		public static string ToTypeScriptType(this Type t)
+		public static TypeDetails ToTypeScriptType(this Type t)
 		{
 			if (IsModelType(t)) {
-				return t.Name;
+				return new TypeDetails(t.Name);
 			}
 			if (t == typeof(bool)) {
-				return "boolean";
+				return new TypeDetails("boolean");
 			}
 			if (t == typeof(byte)
 			    || t == typeof(sbyte)
@@ -27,22 +27,22 @@ namespace TypeScripter
 			    || t == typeof(float)
 			    || t == typeof(double)
 			    || t == typeof(decimal)) {
-				return "number";
+				return new TypeDetails("number");
 			}
 			if (t == typeof(string) || t == typeof(char)) {
-				return "string";
+				return new TypeDetails("string");
 			}
 			if (t.Name == "List`1" || (t.IsGenericType && typeof(IEnumerable<object>).IsAssignableFrom(t))) {
-				return ToTypeScriptType(t.GetGenericArguments()[0]) + "[]";
+				return new TypeDetails(ToTypeScriptType(t.GetGenericArguments()[0]) + "[]", " = []");
 			}
 			if (t.Name == "Nullable`1") {
 				return ToTypeScriptType(t.GetGenericArguments()[0]);
 			}
 			if (t == typeof(DateTime)) {
-				return "moment.Moment";
+				return new TypeDetails("moment.Moment");
 			}
 
-			return "any";
+			return new TypeDetails("any");
 		}
 
 		public static bool IsModelType(this Type t) {
