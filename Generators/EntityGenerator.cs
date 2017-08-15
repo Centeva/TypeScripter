@@ -100,7 +100,10 @@ namespace TypeScripter.Generators
 		private static NameAndType[] GetItterableModelPropertiesInType(Type t)
 		{
 			return t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-				.Where(x => x.PropertyType.IsGenericType && typeof (IEnumerable<object>).IsAssignableFrom(x.PropertyType))
+				.Where(x => 
+					x.PropertyType.IsGenericType 
+					&& typeof (IEnumerable<object>).IsAssignableFrom(x.PropertyType)
+					&& x.PropertyType.GetGenericArguments()[0].IsModelTypeNoAbstract())
 				.Select(p => new NameAndType() {Name = p.Name, Type = p.PropertyType.GetGenericArguments()[0].ToTypeScriptType() })
 				.Distinct()
 				.OrderBy(p => p.Name)
