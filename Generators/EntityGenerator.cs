@@ -59,9 +59,7 @@ namespace TypeScripter.Generators
 			if (!t.IsAbstract) {
 				sb.AppendLine();
 				sb.AppendLine("\tpublic constructor(");
-				sb.AppendLine("\t\tfields?: {");
-				sb.AppendLine(string.Join(",\n", allProps.Select(prop => string.Format("\t\t\t{0}?: {1}", prop.Name, prop.Type))));
-				sb.AppendLine("\t\t}) {");
+				sb.AppendLine(string.Format("\t\tfields?: Partial<{0}>) {{", t.Name));
 				sb.AppendLine();
 
 				if (!string.IsNullOrWhiteSpace(baseClass)) {
