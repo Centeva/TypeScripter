@@ -255,3 +255,4 @@ paket-files/
 rebuild.cmd
 .vs/**
 **/*.suo
+/.vs/TypeScripter/v14/*.suo
