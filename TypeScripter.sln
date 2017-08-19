@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeScripter", "TypeScripter.csproj", "{F974A8BF-60A5-42BE-BF15-EFD868FDDF85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeScripter.Attributes", "TypeScripter.Attributes\TypeScripter.Attributes.csproj", "{2173B73B-8E8C-4A55-B072-8E9776CF0F73}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{F974A8BF-60A5-42BE-BF15-EFD868FDDF85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F974A8BF-60A5-42BE-BF15-EFD868FDDF85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F974A8BF-60A5-42BE-BF15-EFD868FDDF85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2173B73B-8E8C-4A55-B072-8E9776CF0F73}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2173B73B-8E8C-4A55-B072-8E9776CF0F73}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2173B73B-8E8C-4A55-B072-8E9776CF0F73}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2173B73B-8E8C-4A55-B072-8E9776CF0F73}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

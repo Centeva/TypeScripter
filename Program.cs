@@ -200,6 +200,7 @@ namespace TypeScripter
 
 		private static IEnumerable<Type> GetModelTypes(Type t)
 		{
+			if (t.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterIgnoreAttribute")) yield break;
 			if (t.IsModelType())
 			{
 				if (t.IsArray)
