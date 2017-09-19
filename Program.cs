@@ -154,8 +154,8 @@ namespace TypeScripter {
 		}
 
 		private static IEnumerable<Type> GetDerivedTypes(IEnumerable<Type> types) {
-			var typesList = types.ToList();
-			var allTypes = new HashSet<Type>(typesList.ToList());
+			var typesList = types;
+			var allTypes = new HashSet<Type>(typesList);
 			foreach(var type in typesList) {
 				allTypes.UnionWith(type.Assembly.GetTypes().Where(t => t != type && type.IsAssignableFrom(t)));
 			}
