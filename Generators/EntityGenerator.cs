@@ -51,7 +51,9 @@ namespace TypeScripter.Generators {
 			foreach(var prop in constants) {
 				sb.AppendLine(string.Format("\tpublic static readonly {0}: {1} = {2};", prop.Name, prop.Type.Name, prop.Value));
 			}
-			sb.AppendLine();
+			if(constants.Any()) {
+				sb.AppendLine();
+			}
 
 			// Write declared properties
 			var declaredProps = t.GetDeclaredPropertiesInType();
