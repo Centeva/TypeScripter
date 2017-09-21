@@ -12,43 +12,28 @@ namespace TypeScripter {
 		private static Options _options;
 
 		static int Main(string[] args) {
-			Stopwatch sw = Stopwatch.StartNew();
+			var sw = Stopwatch.StartNew();
 
 			int loadResult = LoadOptions(args);
 			if(loadResult != 0) {
 				return loadResult;
 			}
 
-			AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly; // Need to look in the base path for referenced .dll files instead of the startup path
 			_basePath = AbsolutePath(_options.Source);
-			var targetPath = AbsolutePath(_options.Destination);
+			AppDomain.CurrentDomain.AssemblyResolve += ResolveAssembly;// Look in the base path for referenced .dll files instead of the startup path
+
 			Console.Write("Scanning for DTO objects in {0}...  ", _basePath);
-
-			// Get dll files from options file list.
-			var dlls = _options.Files.SelectMany(f => Directory.GetFiles(_basePath, f));
-
-			// Load the assemblies so we can reflect on them
-			var assemblies = dlls.Select(Load).Where(a => a != null);
-
-			// Find all Types that inherit from ApiController
-			var apiControllers = assemblies.SelectMany(GetApiControllers).ToList();
-
-			// Get all types that are returned from an API call or are in the parameter list
-			var topLevelModels = new HashSet<Type>(apiControllers.SelectMany(GetModelsFromController));
-			var allModels = new HashSet<Type>(GetDerivedTypes(topLevelModels));// Add derived types
-
-			// Now recursively search the top level models for child models
-			foreach(var model in allModels.ToArray()) {
-				RecursivelySearchModels(model, allModels);
-			}
+			var apiControllers = GetApiControllers(_basePath);
+			var controllerModels = new HashSet<Type>(apiControllers.SelectMany(GetModelsFromController));// return and parameter models
+			var allModels = GetAllModelsToGenerate(controllerModels);
 			Console.WriteLine("Found {0}", allModels.Count);
 
+			var targetPath = AbsolutePath(_options.Destination);
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
 				EntityGenerator.Generate(targetPath, allModels),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, topLevelModels, targetPath)
+				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath)
 			);
-
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
 			Console.WriteLine("Done in {0:N3}s", sw.Elapsed.TotalSeconds);
@@ -110,6 +95,23 @@ namespace TypeScripter {
 			return 0;
 		}
 
+		private static List<Type> GetApiControllers(string path) {
+			var dlls = _options.Files.SelectMany(f => Directory.GetFiles(path, f));// Get dll files from options file list.
+			var assemblies = dlls.Select(Load).Where(a => a != null);// Load the assemblies so we can reflect on them
+
+			return assemblies.SelectMany(GetApiControllers).ToList();// Find all Types that inherit from ApiController
+		}
+
+		private static HashSet<Type> GetAllModelsToGenerate(HashSet<Type> models) {
+			var allModels = new HashSet<Type>(GetDerivedTypes(models));// Add derived types
+
+			// Now recursively search the all models for child models
+			foreach(var model in allModels.ToArray()) {
+				RecursivelySearchModels(model, allModels);
+			}
+			return allModels;
+		}
+
 		private static Assembly ResolveAssembly(object sender, ResolveEventArgs args) {
 			try {
 				var file = Path.Combine(_basePath, args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal)) + ".dll");
@@ -153,7 +155,7 @@ namespace TypeScripter {
 				);
 		}
 
-		private static IEnumerable<Type> GetDerivedTypes(IEnumerable<Type> types) {
+		private static HashSet<Type> GetDerivedTypes(HashSet<Type> types) {
 			var typesList = types;
 			var allTypes = new HashSet<Type>(typesList);
 			foreach(var type in typesList) {
