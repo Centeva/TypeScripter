@@ -51,8 +51,8 @@ namespace TypeScripter.Generators
 			}
 
 			sb.AppendLine(" {");
-			var declaredProps = t.GetDeclaredPropertiesInType();
-			foreach (var prop in declaredProps) {
+			var props = t.BaseType != null && !t.BaseType.IsModelType() ? t.GetAllPropertiesInType() : t.GetDeclaredPropertiesInType();
+			foreach (var prop in props) {
 				sb.AppendLine(string.Format("\tpublic {0}: {1} {2};", prop.Name, prop.Type.Name, prop.Type.Initializer));
 			}
 

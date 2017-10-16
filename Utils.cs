@@ -50,7 +50,7 @@ namespace TypeScripter
 				return false;
 			}
 
-			bool isModel = t.FullName != null && !t.FullName.StartsWith("System.");
+			bool isModel = t.FullName != null && !t.FullName.StartsWith("System.") && !t.FullName.StartsWith("Microsoft.");
 			return isModel;
 		}
 
