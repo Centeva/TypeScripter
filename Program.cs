@@ -32,7 +32,7 @@ namespace TypeScripter {
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
 				EntityGenerator.Generate(targetPath, allModels),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath)
+				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule)
 			);
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
@@ -41,11 +41,12 @@ namespace TypeScripter {
 		}
 
 		private static int LoadOptions(string[] args) {
-			if(args.Length != 1 && args.Length > 3) {
+			if(args.Length != 1 && args.Length > 4) {
 				Console.WriteLine("Usage: typescripter.exe <Options File Path>");
-				Console.WriteLine("       typescripter.exe <dll source path> <model target path> <api relative path (optional)>");
+				Console.WriteLine("       typescripter.exe <dll source path> <model target path> <api relative path (optional)> <data service type (optional)>");
 				Console.WriteLine("Note:  If the <api relative path> is provided, either in the command line or options file, TypeScripter will generate a DataService.ts file.");
-				Console.WriteLine("Example: typescripter.exe \"Options.json\"");
+                Console.WriteLine("Note:  <data service type> options are httpclientmodule or httpmodule and Correspond to the (new)HttpClientModule or the (old/default)HttpModule");
+                Console.WriteLine("Example: typescripter.exe \"Options.json\"");
 				Console.WriteLine("         typescripter.exe \"c:\\Source\\Project\\bin\\debug\" \"c:\\Source\\Project\\src\\app\\models\\generated\"");
 				Console.WriteLine("------------------------------------");
 				for(var i = 0; i < args.Length; i++) {
@@ -70,6 +71,10 @@ namespace TypeScripter {
 						if(_options.ControllerBaseClassNames == null || _options.ControllerBaseClassNames.Length <= 0) {
 							_options.ControllerBaseClassNames = new[] { "ApiController" };
 						}
+						if(string.IsNullOrEmpty(_options.HttpModule))
+						{
+							_options.HttpModule = "HttpModule";
+						}
 					}
 					catch(Exception e) {
 						Console.WriteLine(e.Message);
@@ -90,6 +95,14 @@ namespace TypeScripter {
 				};
 				if(args.Length >= 3) {
 					_options.ApiRelativePath = args[2];
+                    if(args.Length >= 4)
+                    {
+                        _options.HttpModule = args[3];
+                        if(_options.HttpModule != "HttpClientModule" || _options.HttpModule != "HttpModule")
+                        {
+                            throw new Exception("HttpModule must be one of HttpModule or HttpClientModule");
+                        }
+                    }
 				}
 			}
 			return 0;
