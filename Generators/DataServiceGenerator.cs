@@ -16,7 +16,7 @@ namespace TypeScripter.Generators
 				return new List<string>();
 			}
 			const string methodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}(`{4}`{5}).map((res: Response) => {6}).catch(this.handleError),";
-			const string clientMethodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}{4}(`{5}`{6}{7},";
+			const string clientMethodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}{4}(`{5}`{6}{7}.catch(this.handleError),";
 
 			if (apiRelativePath.EndsWith("/"))
 			{
