@@ -5,17 +5,53 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using TypeScripter.Generators;
+using DocoptNet;
 
-namespace TypeScripter {
-	class Program {
+namespace TypeScripter
+{
+	class Program
+	{
 		private static string _basePath;
 		private static Options _options;
 
-		static int Main(string[] args) {
+		// See http://docopt.org/
+		// Formated with spaces purposely DO NOT REFORMAT
+		private const string usage = @"Typescripter.
+
+    Usage:
+      Typescripter.exe <SETTINGSFILE>
+      Typescripter.exe <SOURCE> <DESTINATION> [<APIPATH> [ --httpclient ]]
+                       [--files=<FILES> | --class=<CLASSNAMES>]...
+      Typescripter.exe ( -h | --help )
+
+    Options:
+      --files=<FILES>         Comma seperated list of .dll files to generate models from. [ default: *.client.dll ]
+      --class=<CLASSNAMES>    Comma seperated list of controller class names. [ default: ApiController ]
+      --httpclient            Generated data service will use the new HttpClientModule for angular 4.
+      -h --help               Show this screen.
+
+      <SETTINGSFILE>          Path to a json settings file
+                                   example settings file contents:
+                                       {
+                                            ""Source"": ""./"",
+                                            ""Destination"": ""../app/models/generated"",
+                                            ""Files"": [ ""*.dll"" ],
+                                            ""ControllerBaseClassNames"": [ ""ApiController"" ],
+                                            ""ApiRelativePath"": ""api"",
+                                            ""HttpModule"": ""HttpClientModule""
+                                        }
+      <SOURCE>                The path that contains the .dll(s)
+      <DESTINATION>           The destination path where the generated models will be placed
+      <APIPATH>               The prefix api calls use (leave blank to not generate a data service)
+    ";
+
+		static int Main(string[] args)
+		{
 			var sw = Stopwatch.StartNew();
 
 			int loadResult = LoadOptions(args);
-			if(loadResult != 0) {
+			if (loadResult != 0)
+			{
 				return loadResult;
 			}
 
@@ -32,7 +68,7 @@ namespace TypeScripter {
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
 				EntityGenerator.Generate(targetPath, allModels),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath)
+				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule)
 			);
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
@@ -40,114 +76,143 @@ namespace TypeScripter {
 			return 0;
 		}
 
-		private static int LoadOptions(string[] args) {
-			if(args.Length != 1 && args.Length > 3) {
-				Console.WriteLine("Usage: typescripter.exe <Options File Path>");
-				Console.WriteLine("       typescripter.exe <dll source path> <model target path> <api relative path (optional)>");
-				Console.WriteLine("Note:  If the <api relative path> is provided, either in the command line or options file, TypeScripter will generate a DataService.ts file.");
-				Console.WriteLine("Example: typescripter.exe \"Options.json\"");
-				Console.WriteLine("         typescripter.exe \"c:\\Source\\Project\\bin\\debug\" \"c:\\Source\\Project\\src\\app\\models\\generated\"");
-				Console.WriteLine("------------------------------------");
-				for(var i = 0; i < args.Length; i++) {
-					Console.WriteLine("[{0}] = {1}", i, args[i]);
-				}
-				return 1;
-			}
+		private static int LoadOptions(string[] args)
+		{
+			var arguments = new Docopt().Apply(usage, args, version: "Typescripter", exit: true);
 
-			if(args.Length == 1) {
-				if(File.Exists(args[0])) {
-					try {
-						_options = FileHandler.ReadJson<Options>(args[0]);
-						if(string.IsNullOrEmpty(_options.Source)) {
+			// using the settings file.
+			ValueObject settingsfile = arguments["<SETTINGSFILE>"];
+			if (settingsfile != null && settingsfile.IsString )
+			{
+				var file = (string)settingsfile.Value;
+				if (File.Exists(file))
+				{
+					try
+					{
+						_options = FileHandler.ReadJson<Options>(file);
+						if (string.IsNullOrEmpty(_options.Source))
+						{
 							throw new Exception("Source is null or empty in options.");
 						}
-						if(string.IsNullOrEmpty(_options.Destination)) {
+						if (string.IsNullOrEmpty(_options.Destination))
+						{
 							throw new Exception("Destination is null or empty in options.");
 						}
-						if(_options.Files == null || _options.Files.Length <= 0) {
+						if (_options.Files == null || _options.Files.Length <= 0)
+						{
 							_options.Files = new[] { "*.client.dll" };
 						}
-						if(_options.ControllerBaseClassNames == null || _options.ControllerBaseClassNames.Length <= 0) {
+						if (_options.ControllerBaseClassNames == null || _options.ControllerBaseClassNames.Length <= 0)
+						{
 							_options.ControllerBaseClassNames = new[] { "ApiController" };
 						}
+						if (string.IsNullOrEmpty(_options.HttpModule))
+						{
+							_options.HttpModule = DataServiceGenerator.Http;
+						}
+						if (_options.HttpModule != DataServiceGenerator.HttpClient && _options.HttpModule != DataServiceGenerator.Http)
+						{
+							throw new Exception(String.Format("HttpModule must be one of {0} or {1}", DataServiceGenerator.Http, DataServiceGenerator.HttpClient));
+						}
 					}
-					catch(Exception e) {
+					catch (Exception e)
+					{
 						Console.WriteLine(e.Message);
 						return 2;
 					}
 				}
-				else {
-					Console.WriteLine("No options file found.");
-					return 3;
+				else
+				{
+					Console.WriteLine(String.Format("Settings file {0} does not exist.", file));
+					return 2;
 				}
 			}
-			else if(args.Length >= 2) {
-				_options = new Options {
-					Source = args[0],
-					Destination = args[1],
-					Files = new[] { "*.client.dll" },
-					ControllerBaseClassNames = new[] { "ApiController" }
+			else
+			{
+				ValueObject source = arguments[CommandLineArguments.Source];
+				ValueObject destination = arguments[CommandLineArguments.Destination];
+				ValueObject files = arguments[CommandLineArguments.Files];
+				ValueObject apipath = arguments[CommandLineArguments.Path];
+				ValueObject classnames = arguments[CommandLineArguments.ClassNames];
+				ValueObject newhttp = arguments[CommandLineArguments.NewHttp];
+				_options = new Options
+				{
+					Source = source != null && source.IsString ? (string)source.Value : "./",
+					Destination = destination != null && source.IsString ? (string)destination.Value : "../models/generated",
+					ApiRelativePath = apipath != null && apipath.IsString ? (string)apipath.Value : null,
+					Files = files != null && files.IsList && files.AsList.Count == 1 ? ((string)(((ValueObject)files.AsList[0]).Value)).Split(',') : new[] { "*.client.dll" },
+					ControllerBaseClassNames = classnames != null && classnames.IsList && classnames.AsList.Count == 1 ? ((string)(((ValueObject)classnames.AsList[0]).Value)).Split(',') : new[] { "ApiController" },
+					HttpModule = newhttp != null && newhttp.IsTrue ? DataServiceGenerator.HttpClient : DataServiceGenerator.Http,
 				};
-				if(args.Length >= 3) {
-					_options.ApiRelativePath = args[2];
-				}
 			}
 			return 0;
 		}
 
-		private static List<Type> GetApiControllers(string path) {
+		private static List<Type> GetApiControllers(string path)
+		{
 			var dlls = _options.Files.SelectMany(f => Directory.GetFiles(path, f));// Get dll files from options file list.
 			var assemblies = dlls.Select(Load).Where(a => a != null);// Load the assemblies so we can reflect on them
 
 			return assemblies.SelectMany(GetApiControllers).ToList();// Find all Types that inherit from ApiController
 		}
 
-		private static HashSet<Type> GetAllModelsToGenerate(HashSet<Type> models) {
+		private static HashSet<Type> GetAllModelsToGenerate(HashSet<Type> models)
+		{
 			var allModels = new HashSet<Type>(GetDerivedTypes(models));// Add derived types
 
 			// Now recursively search the all models for child models
-			foreach(var model in allModels.ToArray()) {
+			foreach (var model in allModels.ToArray())
+			{
 				RecursivelySearchModels(model, allModels);
 			}
 			return allModels;
 		}
 
-		private static Assembly ResolveAssembly(object sender, ResolveEventArgs args) {
-			try {
+		private static Assembly ResolveAssembly(object sender, ResolveEventArgs args)
+		{
+			try
+			{
 				var file = Path.Combine(_basePath, args.Name.Substring(0, args.Name.IndexOf(",", StringComparison.Ordinal)) + ".dll");
 				return Assembly.LoadFile(file);
 			}
-			catch {
+			catch
+			{
 				Console.WriteLine(args.Name);
 				return null;
 			}
 		}
 
-		private static Assembly Load(string path) {
+		private static Assembly Load(string path)
+		{
 			try { return Assembly.LoadFile(path); }
 			catch { return null; }
 		}
 
-		private static string AbsolutePath(string relativePath) {
+		private static string AbsolutePath(string relativePath)
+		{
 			return Path.IsPathRooted(relativePath) ? relativePath : Path.Combine(Environment.CurrentDirectory, relativePath);
 		}
 
-		private static IEnumerable<Type> GetApiControllers(Assembly a) {
+		private static IEnumerable<Type> GetApiControllers(Assembly a)
+		{
 			return TryGetApiControllerTypes(a).Where(t => t.BaseType != null && _options.ControllerBaseClassNames.Contains(t.BaseType.Name));
 		}
 
-		private static IEnumerable<Type> TryGetApiControllerTypes(Assembly a) {
+		private static IEnumerable<Type> TryGetApiControllerTypes(Assembly a)
+		{
 			try { return a.GetTypes(); }
 			catch { return Enumerable.Empty<Type>(); }
 		}
 
-		private static IEnumerable<Type> GetModelsFromController(Type controllerType) {
+		private static IEnumerable<Type> GetModelsFromController(Type controllerType)
+		{
 			var methods = controllerType.GetMethods();
 			var models = methods.SelectMany(GetModelsFromMethod);
 			return models;
 		}
 
-		private static IEnumerable<Type> GetModelsFromMethod(MethodInfo arg) {
+		private static IEnumerable<Type> GetModelsFromMethod(MethodInfo arg)
+		{
 			return GetModelTypes(arg.ReturnType)
 				.Union(arg.GetParameters()
 					.Select(p => p.ParameterType)
@@ -155,55 +220,69 @@ namespace TypeScripter {
 				);
 		}
 
-		private static HashSet<Type> GetDerivedTypes(HashSet<Type> types) {
+		private static HashSet<Type> GetDerivedTypes(HashSet<Type> types)
+		{
 			var typesList = types;
 			var allTypes = new HashSet<Type>(typesList);
-			foreach(var type in typesList) {
+			foreach (var type in typesList)
+			{
 				allTypes.UnionWith(type.Assembly.GetTypes().Where(t => t != type && type.IsAssignableFrom(t)));
 			}
 			return allTypes;
 		}
 
-		private static IEnumerable<Type> GetModelTypes(Type t) {
-			if(t.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterIgnoreAttribute")) yield break;
-			if(t.IsModelType()) {
-				if(t.IsArray) {
+		private static IEnumerable<Type> GetModelTypes(Type t)
+		{
+			if (t.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterIgnoreAttribute")) yield break;
+			if (t.IsModelType())
+			{
+				if (t.IsArray)
+				{
 					yield return t.GetElementType();
 				}
-				else {
+				else
+				{
 					yield return t;
 				}
 			}
-			else {
-				if(t.IsGenericType) {
-					foreach(var a in t.GetGenericArguments().Where(a => a.IsModelType()).SelectMany(GetModelTypes)) {
+			else
+			{
+				if (t.IsGenericType)
+				{
+					foreach (var a in t.GetGenericArguments().Where(a => a.IsModelType()).SelectMany(GetModelTypes))
+					{
 						yield return a;
 					}
 				}
 			}
-			if(t.BaseType != null && t.BaseType.IsModelType()) {
+			if (t.BaseType != null && t.BaseType.IsModelType())
+			{
 				yield return t.BaseType;
 			}
 		}
 
-		private static void RecursivelySearchModels(Type model, HashSet<Type> visitedModels) {
+		private static void RecursivelySearchModels(Type model, HashSet<Type> visitedModels)
+		{
 			var props = model
 				.GetProperties()
 				.Select(p => p.GetPropertyType()).SelectMany(GetModelTypes).Where(t => !visitedModels.Contains(t) && t.IsModelType());
-			foreach(var p in props) {
+			foreach (var p in props)
+			{
 				visitedModels.Add(p);
 				RecursivelySearchModels(p, visitedModels);
 			}
 		}
 
-		private static void RemoveNonGeneratedFiles(string targetPath, List<string> allGeneratedNames) {
+		private static void RemoveNonGeneratedFiles(string targetPath, List<string> allGeneratedNames)
+		{
 			// Make sure output directory does not contain any non-generated files that might cause problems
 			var filesToDelete = Directory
 				.GetFiles(targetPath)
 				.Select(Path.GetFileName)
 				.Except(allGeneratedNames.Select(m => m + ".ts"), StringComparer.OrdinalIgnoreCase);
 
-			foreach(var file in filesToDelete) {
+			foreach (var file in filesToDelete)
+			{
 				File.Delete(Path.Combine(targetPath, file));
 			}
 		}
