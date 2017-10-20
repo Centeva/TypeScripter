@@ -40,8 +40,8 @@ namespace TypeScripter
                                             ""ApiRelativePath"": ""api"",
                                             ""HttpModule"": ""HttpClientModule""
                                         }
-      <SOURCE>                The absolute path that contains the .dll
-      <DESTINATION>           The absolute path to the destination of the generated models
+      <SOURCE>                The path that contains the .dll(s)
+      <DESTINATION>           The destination path where the generated models will be placed
       <APIPATH>               The prefix api calls use (leave blank to not generate a data service)
     ";
 
