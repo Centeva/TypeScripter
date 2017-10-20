@@ -20,23 +20,29 @@ namespace TypeScripter
 
     Usage:
       Typescripter.exe <SETTINGSFILE>
-      Typescripter.exe <SOURCE> <DESTINATION>
-      Typescripter.exe <SOURCE> <DESTINATION> 
-                       [ --files=<FILES> 
-                       | --api=<PATH> 
-                       | --class=<CLASSNAMES> 
-                       | --newhttp ]...
+      Typescripter.exe <SOURCE> <DESTINATION> [<APIPATH> [ --httpclient ]]
+                       [--files=<FILES> | --class=<CLASSNAMES>]...
       Typescripter.exe ( -h | --help )
 
     Options:
-      --api=<PATH>            The path api calls should use. (Note: defaults to null and doesn't generate a data service)
       --files=<FILES>         Comma seperated list of .dll files to generate models from. [ default: *.client.dll ]
       --class=<CLASSNAMES>    Comma seperated list of controller class names. [ default: ApiController ]
-      --newhttp               Generated data service will use the new HttpClientModule for angular 4.
+      --httpclient            Generated data service will use the new HttpClientModule for angular 4.
       -h --help               Show this screen.
 
+      <SETTINGSFILE>          Path to a json settings file
+                                   example settings file contents:
+                                       {
+                                            ""Source"": ""./"",
+                                            ""Destination"": ""../app/models/generated"",
+                                            ""Files"": [ ""*.dll"" ],
+                                            ""ControllerBaseClassNames"": [ ""ApiController"" ],
+                                            ""ApiRelativePath"": ""api"",
+                                            ""HttpModule"": ""HttpClientModule""
+                                        }
       <SOURCE>                The absolute path that contains the .dll
       <DESTINATION>           The absolute path to the destination of the generated models
+      <APIPATH>               The prefix api calls use (leave blank to not generate a data service)
     ";
 
 		static int Main(string[] args)
@@ -133,10 +139,10 @@ namespace TypeScripter
 				{
 					Source = source != null && source.IsString ? (string)source.Value : "./",
 					Destination = destination != null && source.IsString ? (string)destination.Value : "../models/generated",
-					ApiRelativePath = apipath != null && apipath.IsList && apipath.AsList.Count == 1 ? ((string)(((ValueObject)apipath.AsList[0]).Value)) : null,
+					ApiRelativePath = apipath != null && apipath.IsString ? (string)apipath.Value : null,
 					Files = files != null && files.IsList && files.AsList.Count == 1 ? ((string)(((ValueObject)files.AsList[0]).Value)).Split(',') : new[] { "*.client.dll" },
 					ControllerBaseClassNames = classnames != null && classnames.IsList && classnames.AsList.Count == 1 ? ((string)(((ValueObject)classnames.AsList[0]).Value)).Split(',') : new[] { "ApiController" },
-					HttpModule = newhttp != null && newhttp.IsInt && (int)newhttp.Value == 1 ? DataServiceGenerator.HttpClient : DataServiceGenerator.Http,
+					HttpModule = newhttp != null && newhttp.IsTrue ? DataServiceGenerator.HttpClient : DataServiceGenerator.Http,
 				};
 			}
 			return 0;

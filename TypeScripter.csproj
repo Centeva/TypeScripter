@@ -54,8 +54,8 @@
     <StartupObject>TypeScripter.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DocoptNet, Version=0.6.1.4, Culture=neutral, PublicKeyToken=7a38c71da49a547e, processorArchitecture=MSIL">
-      <HintPath>packages\docopt.net.0.6.1.9\lib\net40\DocoptNet.dll</HintPath>
+    <Reference Include="DocoptNet">
+      <HintPath>.\DocoptNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

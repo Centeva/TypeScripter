@@ -12,8 +12,8 @@ namespace TypeScripter
 		public const string Source = "<SOURCE>";
 		public const string Destination = "<DESTINATION>";
 		public const string Files = "--files";
-		public const string Path = "--api";
+		public const string Path = "<APIPATH>";
 		public const string ClassNames = "--class";
-		public const string NewHttp = "--newhttp";
+		public const string NewHttp = "--httpclient";
 	}
 }
