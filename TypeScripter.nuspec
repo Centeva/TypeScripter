@@ -14,6 +14,7 @@
   </metadata>
 	<files>
 		<file src="bin/Release/TypeScripter.exe" target="tools"/>
+		<file src="bin/Release/DocoptNet.dll" target="tools"/>
 		<file src="TypeScripter.Attributes/bin/Release/TypeScripter.Attributes.dll" target="lib"/>
 	</files>
 </package>
