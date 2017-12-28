@@ -28,7 +28,7 @@ namespace TypeScripter
       --files=<FILES>         Comma seperated list of .dll files to generate models from. [ default: *.client.dll ]
       --class=<CLASSNAMES>    Comma seperated list of controller class names. [ default: ApiController ]
       --httpclient            Generated data service will use the new HttpClientModule for angular 4.
-	  --combineimports        Combines model imports to come from the generated index, rather than individual model files. [default: false]
+      --combineimports        Combines model imports to come from the generated index, rather than individual model files. [default: false]
       -h --help               Show this screen.
 
       <SETTINGSFILE>          Path to a json settings file
