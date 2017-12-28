@@ -35,18 +35,21 @@ namespace TypeScripter.Generators
 			sb.AppendLine("import { Observable } from 'rxjs';");
 			sb.AppendLine("import * as moment from 'moment';");
 
+			var startingImport = "import {";
+			var endingImport = "} from '.';";
+
 			if (CombineImports) {
-				sb.AppendLine("import {");
-				foreach (var import in models.OrderBy(m => m.Name)) {
-					sb.AppendLine(string.Format("\t{0},", import.Name));
+				sb.AppendLine(string.Format("{0}", startingImport));
+				foreach (var m in models.OrderBy(m => m.Name)) {
+					sb.AppendLine(string.Format("\t{0},", m.Name));
 				}
-				sb.AppendLine("} from './';\n");
+				sb.AppendLine(string.Format("{0}", endingImport));
 			} else {
 				foreach (var m in models.OrderBy(m => m.Name)) {
-					sb.AppendLine("import { " + m.Name + " } from '.';");
+					sb.AppendLine(string.Format("{0} {1} {2}", startingImport, m.Name, endingImport));
 				}
-				sb.AppendLine("");
 			}
+			sb.AppendLine("");
 
 			sb.AppendLine("@Injectable()");
 			sb.AppendLine("export class DataService {");
