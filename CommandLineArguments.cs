@@ -15,5 +15,6 @@ namespace TypeScripter
 		public const string Path = "<APIPATH>";
 		public const string ClassNames = "--class";
 		public const string NewHttp = "--httpclient";
+		public const string CombineImports = "--combineimports";
 	}
 }

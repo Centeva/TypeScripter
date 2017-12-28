@@ -20,7 +20,7 @@ namespace TypeScripter
 
     Usage:
       Typescripter.exe <SETTINGSFILE>
-      Typescripter.exe <SOURCE> <DESTINATION> [<APIPATH> [ --httpclient ]]
+      Typescripter.exe <SOURCE> <DESTINATION> [<APIPATH> [ --httpclient ] [ --combineimports ]]
                        [--files=<FILES> | --class=<CLASSNAMES>]...
       Typescripter.exe ( -h | --help )
 
@@ -28,6 +28,7 @@ namespace TypeScripter
       --files=<FILES>         Comma seperated list of .dll files to generate models from. [ default: *.client.dll ]
       --class=<CLASSNAMES>    Comma seperated list of controller class names. [ default: ApiController ]
       --httpclient            Generated data service will use the new HttpClientModule for angular 4.
+      --combineimports        Combines model imports to come from the generated index, rather than individual model files. [default: false]
       -h --help               Show this screen.
 
       <SETTINGSFILE>          Path to a json settings file
@@ -39,6 +40,7 @@ namespace TypeScripter
                                             ""ControllerBaseClassNames"": [ ""ApiController"" ],
                                             ""ApiRelativePath"": ""api"",
                                             ""HttpModule"": ""HttpClientModule""
+                                            ""CombineImports"": true|false [default: false]
                                         }
       <SOURCE>                The path that contains the .dll(s)
       <DESTINATION>           The destination path where the generated models will be placed
@@ -67,8 +69,8 @@ namespace TypeScripter
 			var targetPath = AbsolutePath(_options.Destination);
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
-				EntityGenerator.Generate(targetPath, allModels),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule)
+				EntityGenerator.Generate(targetPath, allModels, _options.CombineImports),
+				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule, _options.CombineImports)
 			);
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
@@ -114,6 +116,9 @@ namespace TypeScripter
 						{
 							throw new Exception(String.Format("HttpModule must be one of {0} or {1}", DataServiceGenerator.Http, DataServiceGenerator.HttpClient));
 						}
+						if (!_options.CombineImports) {
+							_options.CombineImports = false;
+						}
 					}
 					catch (Exception e)
 					{
@@ -135,6 +140,7 @@ namespace TypeScripter
 				ValueObject apipath = arguments[CommandLineArguments.Path];
 				ValueObject classnames = arguments[CommandLineArguments.ClassNames];
 				ValueObject newhttp = arguments[CommandLineArguments.NewHttp];
+				ValueObject combineImports = arguments[CommandLineArguments.CombineImports];
 				_options = new Options
 				{
 					Source = source != null && source.IsString ? (string)source.Value : "./",
@@ -143,6 +149,7 @@ namespace TypeScripter
 					Files = files != null && files.IsList && files.AsList.Count == 1 ? ((string)(((ValueObject)files.AsList[0]).Value)).Split(',') : new[] { "*.client.dll" },
 					ControllerBaseClassNames = classnames != null && classnames.IsList && classnames.AsList.Count == 1 ? ((string)(((ValueObject)classnames.AsList[0]).Value)).Split(',') : new[] { "ApiController" },
 					HttpModule = newhttp != null && newhttp.IsTrue ? DataServiceGenerator.HttpClient : DataServiceGenerator.Http,
+					CombineImports = combineImports != null && combineImports.IsTrue ? true : false
 				};
 			}
 			return 0;

@@ -12,7 +12,7 @@ namespace TypeScripter.Generators
 		public static string HttpClient = "HttpClientModule";
 		public static string Http = "HttpModule";
 
-		public static List<string> Generate(string apiRelativePath, List<Type> apiControllers, HashSet<Type> models, string targetPath, string HttpModule)
+		public static List<string> Generate(string apiRelativePath, List<Type> apiControllers, HashSet<Type> models, string targetPath, string HttpModule, bool CombineImports = false)
 		{
 			if (string.IsNullOrWhiteSpace(apiRelativePath))
 			{
@@ -34,12 +34,23 @@ namespace TypeScripter.Generators
 			sb.AppendLine(HttpModule == HttpClient ? "import { HttpClient, HttpErrorResponse } from '@angular/common/http';" : "import { Http, Response } from '@angular/http';");
 			sb.AppendLine("import { Observable } from 'rxjs';");
 			sb.AppendLine("import * as moment from 'moment';");
-			foreach (var m in models.OrderBy(m => m.Name))
-			{
-				sb.AppendLine("import { " + m.Name + " } from '.';");
-			}
 
+			var startingImport = "import {";
+			var endingImport = "} from '.';";
+
+			if (CombineImports) {
+				sb.AppendLine(string.Format("{0}", startingImport));
+				foreach (var m in models.OrderBy(m => m.Name)) {
+					sb.AppendLine(string.Format("\t{0},", m.Name));
+				}
+				sb.AppendLine(string.Format("{0}", endingImport));
+			} else {
+				foreach (var m in models.OrderBy(m => m.Name)) {
+					sb.AppendLine(string.Format("{0} {1} {2}", startingImport, m.Name, endingImport));
+				}
+			}
 			sb.AppendLine("");
+
 			sb.AppendLine("@Injectable()");
 			sb.AppendLine("export class DataService {");
 

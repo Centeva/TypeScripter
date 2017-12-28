@@ -11,7 +11,7 @@ Typescripter.
 
     Usage:
       Typescripter.exe <SETTINGSFILE>
-      Typescripter.exe <SOURCE> <DESTINATION> [<APIPATH> [ --httpclient ]]
+      Typescripter.exe <SOURCE> <DESTINATION> [<APIPATH> [ --httpclient ] [ --combineimports ]]
                        [--files=<FILES> | --class=<CLASSNAMES>]...
       Typescripter.exe ( -h | --help )
 
@@ -19,6 +19,7 @@ Typescripter.
       --files=<FILES>         Comma seperated list of .dll files to generate models from. [ default: *.client.dll ]
       --class=<CLASSNAMES>    Comma seperated list of controller class names. [ default: ApiController ]
       --httpclient            Generated data service will use the new HttpClientModule for angular 4.
+      --combineimports        Combines model imports to come from the generated index file, instead of individual models. [default: false]
       -h --help               Show this screen.
 
       <SETTINGSFILE>          Path to a json settings file
@@ -29,7 +30,8 @@ Typescripter.
                                             "Files": [ "*.dll" ],
                                             "ControllerBaseClassNames": [ "ApiController" ],
                                             "ApiRelativePath": "api",
-                                            "HttpModule": "HttpClientModule"
+                                            "HttpModule": "HttpClientModule",
+                                            "CombineImports": true|false [default: false]
                                         }
       <SOURCE>                The path that contains the .dll(s)
       <DESTINATION>           The destination path where the generated models will be placed
