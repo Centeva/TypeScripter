@@ -11,5 +11,6 @@ namespace TypeScripter
 		[DataMember] public string[] ControllerBaseClassNames { get; set; }
 		[DataMember] public string ApiRelativePath { get; set; }
         [DataMember] public string HttpModule { get; set; }
+		[DataMember] public bool CombineImports { get; set; }
     }
 }

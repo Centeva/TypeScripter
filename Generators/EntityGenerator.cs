@@ -7,21 +7,21 @@ using System.Text;
 
 namespace TypeScripter.Generators {
 	public static class EntityGenerator {
-		public static List<string> Generate(string targetPath, HashSet<Type> allModels) {
+		public static List<string> Generate(string targetPath, HashSet<Type> allModels, bool combineImports = false) {
 			if(!Directory.Exists(targetPath)) {
 				Directory.CreateDirectory(targetPath);
 			}
 
 			// Create and write new models
 			foreach(var m in allModels.OrderBy(m => m.Name)) {
-				Utils.WriteIfChanged(CreateModelString(m), Path.Combine(targetPath, m.Name + ".ts"));
+				Utils.WriteIfChanged(CreateModelString(m, combineImports), Path.Combine(targetPath, m.Name + ".ts"));
 			}
 
 			Console.WriteLine("Created {0} TypeScript models.", allModels.Count);
 			return allModels.Select(m => m.Name).ToList();
 		}
 
-		private static string CreateModelString(Type t) {
+		private static string CreateModelString(Type t, bool combineImports) {
 			var sb = new StringBuilder();
 			var allProps = t.GetAllPropertiesInType();
 			var baseClass = t.BaseType != null && t.BaseType.IsModelType() ? t.BaseType.Name : "";
@@ -34,10 +34,20 @@ namespace TypeScripter.Generators {
 				sb.AppendLine(string.Format("import {{ {0} }} from './{0}';", baseClass));
 			}
 			var importTypes = t.FindChildModelTypeNames();
-			foreach(var import in importTypes) {
-				sb.AppendLine(string.Format("import {{ {0} }} from './{0}';", import));
+
+			// If the option is configured, combine the model imports to use the generated index.
+			if (combineImports) {
+				sb.AppendLine("import {");
+				foreach(var import in importTypes) {
+					sb.AppendLine(string.Format("\t{0},", import));
+				}
+				sb.AppendLine("} from './';\n");
+			} else {
+				foreach (var import in importTypes) {
+					sb.AppendLine(string.Format("import {{ {0} }} from './{0}';", import));
+				}
+				sb.AppendLine();
 			}
-			sb.AppendLine();
 
 			// Write declaration
 			sb.Append((t.IsAbstract ? "export abstract class " : "export class ") + t.Name);
