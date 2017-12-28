@@ -70,7 +70,7 @@ namespace TypeScripter
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
 				EntityGenerator.Generate(targetPath, allModels, _options.CombineImports),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule)
+				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule, _options.CombineImports)
 			);
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
