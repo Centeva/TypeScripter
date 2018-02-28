@@ -21,7 +21,38 @@ namespace TypeScripter.Generators {
 			return allModels.Select(m => m.Name).ToList();
 		}
 
-		private static string CreateModelString(Type t, bool combineImports) {
+		private static string CreateModelString(Type t, bool combineImports)
+		{
+			if (t.IsEnum)
+			{
+				return GenerateEnum(t);
+			}
+			else
+			{
+				return GenerateClass(t, combineImports);
+			}
+		}
+
+		private static string GenerateEnum(Type t)
+		{
+			var enumValues = Enum.GetValues(t);
+			
+			var sb = new StringBuilder();
+			sb.AppendFormat("export enum {0} {{", t.Name);
+
+			foreach (var value in enumValues)
+			{
+				sb.AppendLine();
+				sb.AppendFormat("\t{0} = {1},", value, (int)value);
+			}
+			sb.AppendLine(); // new line after last enum value
+			sb.AppendLine("}");
+
+			return sb.ToString();
+		}
+
+		private static string GenerateClass(Type t, bool combineImports)
+		{
 			var sb = new StringBuilder();
 			var allProps = t.GetAllPropertiesInType();
 			var baseClass = t.BaseType != null && t.BaseType.IsModelType() ? t.BaseType.Name : "";

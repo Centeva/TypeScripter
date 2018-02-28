@@ -22,7 +22,7 @@ namespace TypeScripter {
 		}
 		
 		public static TypeDetails ToTypeScriptType(this Type t) {
-			if(IsModelType(t)) {
+			if(IsModelType(t) || t.IsEnum) {
 				return new TypeDetails(t.Name);
 			}
 			if(t == typeof(bool)) {
@@ -107,7 +107,7 @@ namespace TypeScripter {
 		public static IEnumerable<string> FindChildModelTypeNames(this Type parentType) {
 			return parentType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 					.Select(p => p.GetPropertyType())
-					.Where(t => t.IsModelType())
+					.Where(t => t.IsModelType() || t.IsEnum)
 					.Where(x => x != parentType)
 					.Distinct()
 					.OrderBy(p => p.Name)

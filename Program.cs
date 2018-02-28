@@ -241,7 +241,7 @@ namespace TypeScripter
 		private static IEnumerable<Type> GetModelTypes(Type t)
 		{
 			if (t.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterIgnoreAttribute")) yield break;
-			if (t.IsModelType())
+			if (t.IsModelType() || t.IsEnum)
 			{
 				if (t.IsArray)
 				{
@@ -252,16 +252,14 @@ namespace TypeScripter
 					yield return t;
 				}
 			}
-			else
+			else if (t.IsGenericType)
 			{
-				if (t.IsGenericType)
+				foreach (var a in t.GetGenericArguments().Where(a => a.IsModelType()).SelectMany(GetModelTypes))
 				{
-					foreach (var a in t.GetGenericArguments().Where(a => a.IsModelType()).SelectMany(GetModelTypes))
-					{
-						yield return a;
-					}
+					yield return a;
 				}
 			}
+
 			if (t.BaseType != null && t.BaseType.IsModelType())
 			{
 				yield return t.BaseType;
