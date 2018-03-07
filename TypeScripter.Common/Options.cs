@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace TypeScripter
+namespace TypeScripter.Common
 {
 	[DataContract]
 	public class Options
