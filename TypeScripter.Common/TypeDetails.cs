@@ -1,4 +1,4 @@
-namespace TypeScripter {
+namespace TypeScripter.Common {
 	public class TypeDetails {
 		public string Name { get; private set; }
 		public string Initializer { get; private set; }

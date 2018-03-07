@@ -13,8 +13,10 @@
     </dependencies>
   </metadata>
 	<files>
-		<file src="bin/Release/TypeScripter.exe" target="content\tools"/>
-		<file src="bin/Release/DocoptNet.dll" target="content\tools"/>
-		<file src="TypeScripter.Attributes/bin/Release/TypeScripter.Attributes.dll" target="lib"/>
+		<file src="TypeScripter/bin/Release/net45/TypeScripter.exe" target="content\tools"/>
+		<file src="TypeScripter/bin/Release/net45/DocoptNet.dll" target="content\tools"/>
+		<file src="TypeScripter.Attributes/bin/Release/net45/TypeScripter.Attributes.dll" target="lib"/>
+		<file src="TypeScripter.Attributes/bin/Release/netstandard2.0/TypeScripter.Attributes.dll" target ="lib"/>
+		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.NetCore.dll" target ="content\tools"/>
 	</files>
 </package>

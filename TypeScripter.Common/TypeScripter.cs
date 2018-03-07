@@ -1,15 +1,15 @@
-﻿using System;
+﻿using DocoptNet;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using TypeScripter.Generators;
-using DocoptNet;
+using TypeScripter.Common.Generators;
 
-namespace TypeScripter
+namespace TypeScripter.Common
 {
-	class Program
+	public class TypeScripter
 	{
 		private static string _basePath;
 		private static Options _options;
@@ -47,7 +47,7 @@ namespace TypeScripter
       <APIPATH>               The prefix api calls use (leave blank to not generate a data service)
     ";
 
-		static int Main(string[] args)
+		public static int Run(string[] args)
 		{
 			var sw = Stopwatch.StartNew();
 
@@ -84,7 +84,7 @@ namespace TypeScripter
 
 			// using the settings file.
 			ValueObject settingsfile = arguments["<SETTINGSFILE>"];
-			if (settingsfile != null && settingsfile.IsString )
+			if (settingsfile != null && settingsfile.IsString)
 			{
 				var file = (string)settingsfile.Value;
 				if (File.Exists(file))
@@ -116,7 +116,8 @@ namespace TypeScripter
 						{
 							throw new Exception(String.Format("HttpModule must be one of {0} or {1}", DataServiceGenerator.Http, DataServiceGenerator.HttpClient));
 						}
-						if (!_options.CombineImports) {
+						if (!_options.CombineImports)
+						{
 							_options.CombineImports = false;
 						}
 					}
