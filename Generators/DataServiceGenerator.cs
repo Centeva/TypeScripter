@@ -166,7 +166,7 @@ namespace TypeScripter.Generators
 			if (typeDetails.Name == "boolean" || typeDetails.Name == "string" || typeDetails.ToString() == "number")
 			{
 				string convert = "x";
-				if (typeDetails.Name == "boolean") { convert = "!!x"; }
+				if (typeDetails.Name == "boolean") { convert = "JSON.parse(x) === true"; }
 				else if (typeDetails.Name == "number") { convert = "Number(x)"; }
 				string map = String.Format(".map( x => {0})", convert);
 				return ", { responseType: 'text' })" + map;
