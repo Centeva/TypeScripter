@@ -67,9 +67,14 @@ namespace TypeScripter {
 
 		private static bool IsGenericEnumerable(Type t)
 		{
-			return t.IsGenericType 
+			if (!t.IsGenericType) {
+				return false;
+			}
+			var typeDef = t.GetGenericTypeDefinition();
+			return typeDef != typeof(Dictionary<,>)
+				&& typeDef != typeof(IDictionary<,>)
 				&& (
-					t.GetGenericTypeDefinition() == typeof(IEnumerable<>) 
+					typeDef == typeof(IEnumerable<>) 
 					|| t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 				);
 		}

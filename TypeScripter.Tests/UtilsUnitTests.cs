@@ -38,5 +38,17 @@ namespace TypeScripter.Tests
 		{
 			Assert.AreEqual("number[]", typeof(IEnumerable<int>).ToTypeScriptType().Name);
 		}
+
+		[TestMethod]
+		public void ToTypeScripterType_Dictionary_Int_Object()
+		{
+			Assert.AreEqual("any", typeof(Dictionary<int, UtilsUnitTests>).ToTypeScriptType().Name);
+		}
+
+		[TestMethod]
+		public void ToTypeScripterType_IDictionary_Int_Object()
+		{
+			Assert.AreEqual("any", typeof(IDictionary<int, UtilsUnitTests>).ToTypeScriptType().Name);
+		}
 	}
 }
