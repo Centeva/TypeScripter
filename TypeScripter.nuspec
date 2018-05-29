@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>Centeva.Ct-TypeScripter</id>
-    <version>2.0.0-beta</version>
+    <version>1.4.0-beta</version>
     <title>Ct-TypeScripter</title>
     <authors>Darrel Brown</authors>
     <owners>Darrel Brown</owners>
@@ -14,11 +14,13 @@
   </metadata>
 	<files>
 		<file src="TypeScripter/bin/Release/net45/TypeScripter.exe" target="content\tools"/>
+		<file src="TypeScripter/bin/Release/net45/TypeScripter.Common.dll" target="content\tools"/>
 		<file src="TypeScripter/bin/Release/net45/DocoptNet.dll" target="content\tools"/>
-		<file src="TypeScripter/bin/Release/net45/TypeScripter.Attributes.dll" target="lib/net45"/>
-		<file src="TypeScripter/bin/Release/net45/TypeScripter.Common.dll" target="lib/net45"/>
-		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.Attributes.dll" target ="lib/netstandard2.0"/>
-		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.Common.dll" target="lib/net45"/>
+		
+		<file src="TypeScripter.Attributes/bin/Release/net45/TypeScripter.Attributes.dll" target="lib/net45"/>
+		<file src="TypeScripter.Attributes/bin/Release/netstandard2.0/TypeScripter.Attributes.dll" target ="lib/netstandard2.0"/>
+		
 		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.NetCore.dll" target ="content\tools"/>
+		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.Common.dll" target="content\tools"/>
 	</files>
 </package>
