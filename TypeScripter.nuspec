@@ -20,7 +20,8 @@
 		<file src="TypeScripter.Attributes/bin/Release/net45/TypeScripter.Attributes.dll" target="lib/net45"/>
 		<file src="TypeScripter.Attributes/bin/Release/netstandard2.0/TypeScripter.Attributes.dll" target ="lib/netstandard2.0"/>
 		
-		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.NetCore.dll" target ="content\tools"/>
-		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.Common.dll" target="content\tools"/>
+		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.NetCore.dll" target ="content\tools\netstandard2.0"/>
+		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.0/TypeScripter.Common.dll" target="content\tools\netstandard2.0"/>
+		<file src="TypeScripter/bin/Release/net45/DocoptNet.dll" target="content\tools\netstandard2.0"/>
 	</files>
 </package>
