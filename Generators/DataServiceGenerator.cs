@@ -76,7 +76,7 @@ namespace TypeScripter.Generators
 						sb.AppendLine("ERROR! The controller '" + apiController.Name + "' has a duplicate method name: '" + method.Name + "'");
 					}
 					names.Add(method.Name);
-					var parameters = method.GetParameters();
+					var parameters = ExpandFromUriParameters(method.GetParameters());
 					var joinedParameters = string.Join(", ", parameters.Select(p => p.Name + ": " + p.ParameterType.ToTypeScriptType()));
 					var url = CombineUri("${this.apiRelativePath}", apiController.Name.Substring(0, apiController.Name.Length - "Controller".Length), method.Name);
 					var httpMethodName = GetHttpMethodName(method);
@@ -161,6 +161,53 @@ namespace TypeScripter.Generators
 			return new List<string> { "DataService" };
 		}
 
+		private class ParameterEssentials
+		{
+			public string Name { get; set; }
+			public Type ParameterType { get; set; }
+			public Type[] Attributes { get; set; }
+
+			public static ParameterEssentials FromParameterInfo(ParameterInfo i)
+			{
+				return new ParameterEssentials
+				{
+					Name = i.Name,
+					ParameterType = i.ParameterType,
+					Attributes = i.GetCustomAttributes(inherit: false).Select(a => a.GetType()).ToArray()
+				};
+			}
+		}
+
+		private static readonly HashSet<string> _primitiveTypes = new HashSet<string>{"boolean", "boolean[]", "number", "number[]", "string", "string[]"};
+		
+		private static ParameterEssentials[] ExpandFromUriParameters(ParameterInfo[] parameters)
+		{
+			Func<ParameterEssentials, bool> isPrimitive = p => _primitiveTypes.Contains(p.ParameterType.ToTypeScriptType().Name);
+			Func<ParameterEssentials, bool> isBareParameter = p => isPrimitive(p) || !p.Attributes.Any(_ => _.Name == "FromUriAttribute");
+			
+			var bareParameters = parameters
+				.Select(ParameterEssentials.FromParameterInfo)
+				.Where(p => isBareParameter(p))
+				.ToList();
+
+			var fromUriParameters = parameters
+				.Select(ParameterEssentials.FromParameterInfo)
+				.Where(p => !isBareParameter(p))
+				.SelectMany(p =>
+					p.ParameterType
+						.GetProperties()
+						.Select(prop =>
+							new ParameterEssentials
+							{
+								Name = prop.Name.Camelize(),
+								ParameterType = prop.PropertyType,
+								Attributes = new Type[0]
+							}))
+				.ToList();
+
+			return bareParameters.Union(fromUriParameters).ToArray();
+		}
+
 		private static string AddResponseType(TypeDetails typeDetails)
 		{
 			if (typeDetails.Name == "boolean" || typeDetails.Name == "string" || typeDetails.ToString() == "number")
@@ -183,13 +230,13 @@ namespace TypeScripter.Generators
 			return String.Format("<{0}>", typeDetails.Name);
 		}
 
-		private static string GenerateGetString(ParameterInfo p)
+		private static string GenerateGetString(ParameterEssentials p)
 		{
 			if (p.ParameterType == typeof(DateTime))
 			{
 				return string.Format("{0}=${{{0}.toISOString()}}", p.Name);
 			}
-			else if (p.ParameterType == typeof(IEnumerable<string>) || p.ParameterType == typeof(IEnumerable<int>))
+			else if (p.ParameterType.ToTypeScriptType().Name.EndsWith("[]"))
 			{
 				return string.Format("${{{0}.map(x => `{0}=${{x}}`).join('&')}}", p.Name);
 			}
