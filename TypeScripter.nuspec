@@ -23,5 +23,7 @@
 		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.1/TypeScripter.NetCore.dll" target ="content\tools\netstandard2.0"/>		
 		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.1/TypeScripter.Common.dll" target ="content\tools\netstandard2.0"/>
 		<file src="TypeScripter.NetCore/bin/Release/netcoreapp2.1/TypeScripter.NetCore.runtimeconfig.json" target ="content\tools\netstandard2.0"/>
+		<file src="TypeScripter/bin/Release/net45/DocoptNet.dll" target="content\tools\netstandard2.0"/>
+
 	</files>
 </package>
