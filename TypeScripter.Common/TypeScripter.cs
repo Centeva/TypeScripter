@@ -223,9 +223,16 @@ namespace TypeScripter.Common
 		{
 			return GetModelTypes(arg.ReturnType)
 				.Union(arg.GetParameters()
+					.Where(p => !HasAttributeNamed(p, "FromUriAttribute")) // All FromUri parameters will be expanded later in the DataServiceGenerator
 					.Select(p => p.ParameterType)
 					.SelectMany(GetModelTypes)
 				);
+		}
+
+		private static bool HasAttributeNamed(ParameterInfo parameter, string attributeName)
+		{
+			var attribs = parameter.GetCustomAttributes(inherit: false);
+			return attribs.Length > 0 && attribs.Any(a => a.GetType().Name == attributeName);
 		}
 
 		private static HashSet<Type> GetDerivedTypes(HashSet<Type> types)
