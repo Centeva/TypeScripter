@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypeScripter.Attributes", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypeScripter", "TypeScripter\TypeScripter.csproj", "{BD46BAD2-B8BB-4FEF-9A98-39C02043A117}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeScripter.NetCore", "TypeScripter.NetCore\TypeScripter.NetCore.csproj", "{E3ED57F3-BAB5-4B01-8A20-2B60FFE3D4C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TypeScripter.NetCore", "TypeScripter.NetCore\TypeScripter.NetCore.csproj", "{E3ED57F3-BAB5-4B01-8A20-2B60FFE3D4C9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TypeScripter.Tests", "TypeScripter.Tests\TypeScripter.Tests.csproj", "{B7B236F8-BF1B-4AE7-8956-E0E2DD998DBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{E3ED57F3-BAB5-4B01-8A20-2B60FFE3D4C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E3ED57F3-BAB5-4B01-8A20-2B60FFE3D4C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E3ED57F3-BAB5-4B01-8A20-2B60FFE3D4C9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7B236F8-BF1B-4AE7-8956-E0E2DD998DBC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7B236F8-BF1B-4AE7-8956-E0E2DD998DBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7B236F8-BF1B-4AE7-8956-E0E2DD998DBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7B236F8-BF1B-4AE7-8956-E0E2DD998DBC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

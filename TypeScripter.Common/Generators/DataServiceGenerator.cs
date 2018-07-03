@@ -166,6 +166,7 @@ namespace TypeScripter.Common.Generators
 			Console.WriteLine("Generated a data service with {0} controllers and {1} methods.", apiControllers.Count, methodCount);
 			return new List<string> { "DataService" };
 		}
+
 		private class ParameterEssentials
 		{
 			public string Name { get; set; }
@@ -183,31 +184,31 @@ namespace TypeScripter.Common.Generators
 			}
 		}
 
-		private static readonly HashSet<string> _primitiveTypes = new HashSet<string> { "boolean", "boolean[]", "number", "number[]", "string", "string[]" };
-
+		private static readonly HashSet<string> _primitiveTypes = new HashSet<string>{"boolean", "boolean[]", "number", "number[]", "string", "string[]"};
+		
 		private static ParameterEssentials[] ExpandFromUriParameters(ParameterInfo[] parameters)
 		{
 			Func<ParameterEssentials, bool> isPrimitive = p => _primitiveTypes.Contains(p.ParameterType.ToTypeScriptType().Name);
 			Func<ParameterEssentials, bool> isBareParameter = p => isPrimitive(p) || !p.Attributes.Any(_ => _.Name == "FromUriAttribute");
-
+			
 			var bareParameters = parameters
-			   .Select(ParameterEssentials.FromParameterInfo)
-			   .Where(p => isBareParameter(p))
-			   .ToList();
+				.Select(ParameterEssentials.FromParameterInfo)
+				.Where(p => isBareParameter(p))
+				.ToList();
 
 			var fromUriParameters = parameters
-			   .Select(ParameterEssentials.FromParameterInfo)
-			   .Where(p => !isBareParameter(p))
-			   .SelectMany(p =>
+				.Select(ParameterEssentials.FromParameterInfo)
+				.Where(p => !isBareParameter(p))
+				.SelectMany(p =>
 					p.ParameterType
-					   .GetProperties()
-					   .Select(prop =>
-				new ParameterEssentials
-				{
-					Name = prop.Name.Camelize(),
-					ParameterType = prop.PropertyType,
-					Attributes = new Type[0]
-				}))
+						.GetProperties()
+						.Select(prop =>
+							new ParameterEssentials
+							{
+								Name = prop.Name.Camelize(),
+								ParameterType = prop.PropertyType,
+								Attributes = new Type[0]
+							}))
 				.ToList();
 
 			return bareParameters.Union(fromUriParameters).ToArray();
@@ -218,7 +219,7 @@ namespace TypeScripter.Common.Generators
 			if (typeDetails.Name == "boolean" || typeDetails.Name == "string" || typeDetails.ToString() == "number")
 			{
 				string convert = "x";
-				if (typeDetails.Name == "boolean") { convert = "!!x"; }
+				if (typeDetails.Name == "boolean") { convert = "JSON.parse(x) === true"; }
 				else if (typeDetails.Name == "number") { convert = "Number(x)"; }
 				string map = String.Format(".pipe(map( x => {0}))", convert);
 				return ", { responseType: 'text' })" + map;

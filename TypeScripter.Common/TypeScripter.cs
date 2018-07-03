@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using TypeScripter.Common.Generators;
 
 namespace TypeScripter.Common
@@ -248,7 +249,12 @@ namespace TypeScripter.Common
 
 		private static IEnumerable<Type> GetModelTypes(Type t)
 		{
-			if (t.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterIgnoreAttribute")) yield break;
+			if (t.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterIgnoreAttribute")
+				|| t == typeof(Task))
+			{
+				yield break;
+			}
+
 			if (t.IsModelType() || t.IsEnum)
 			{
 				if (t.IsArray)
@@ -262,7 +268,7 @@ namespace TypeScripter.Common
 			}
 			else if (t.IsGenericType)
 			{
-				foreach (var a in t.GetGenericArguments().Where(a => a.IsModelType()).SelectMany(GetModelTypes))
+				foreach (var a in t.GetGenericArguments().Where(a => a.IsModelType() || a.IsGenericType).SelectMany(GetModelTypes))
 				{
 					yield return a;
 				}
