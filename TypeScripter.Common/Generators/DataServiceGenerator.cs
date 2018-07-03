@@ -18,8 +18,8 @@ namespace TypeScripter.Common.Generators
 			{
 				return new List<string>();
 			}
-			const string methodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}(`{4}`{5}).map((res: Response) => {6}).catch(this.handleError),";
-			const string clientMethodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}{4}(`{5}`{6}{7}.catch(this.handleError),";
+			const string methodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}(`{4}`{5}).pipe(map((res: Response) => {6}), catchError(this.handleError)),";
+			const string clientMethodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}{4}(`{5}`{6}{7}.pipe(catchError(this.handleError)),";
 
 			if (apiRelativePath.EndsWith("/"))
 			{
@@ -32,7 +32,8 @@ namespace TypeScripter.Common.Generators
 			sb.AppendLine("// tslint:disable:member-ordering");
 			sb.AppendLine("import { Injectable } from '@angular/core';");
 			sb.AppendLine(HttpModule == HttpClient ? "import { HttpClient, HttpErrorResponse } from '@angular/common/http';" : "import { Http, Response } from '@angular/http';");
-			sb.AppendLine("import { Observable } from 'rxjs';");
+			sb.AppendLine("import {throwError as observableThrowError,  Observable } from 'rxjs';");
+			sb.AppendLine("import {map, catchError} from 'rxjs/operators';");
 			sb.AppendLine("import * as moment from 'moment';");
 
 			var startingImport = "import {";
@@ -168,7 +169,7 @@ namespace TypeScripter.Common.Generators
 				string convert = "x";
 				if (typeDetails.Name == "boolean") { convert = "!!x"; }
 				else if (typeDetails.Name == "number") { convert = "Number(x)"; }
-				string map = String.Format(".map( x => {0})", convert);
+				string map = String.Format(".pipe(map( x => {0}))", convert);
 				return ", { responseType: 'text' })" + map;
 			}
 			return ")";
