@@ -3,7 +3,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace TypeScripter {
+namespace TypeScripter.Common {
 	public static class FileHandler {
 		public static T ReadJson<T>(string filePath) where T : class {
 			try {

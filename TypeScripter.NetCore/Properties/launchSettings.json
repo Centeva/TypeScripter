@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "TypeScripter.NetCore": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\dev\\Libraries\\dotnetcorebase\\rZwX8C0O.Client\\typescripter.settings.json",
+      "workingDirectory": "C:\\dev\\Libraries\\dotnetcorebase\\rZwX8C0O.Client"
+    }
+  }
+}

@@ -54,9 +54,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\TypeScripter.csproj">
-      <Project>{F974A8BF-60A5-42BE-BF15-EFD868FDDF85}</Project>
-      <Name>TypeScripter</Name>
+    <ProjectReference Include="..\TypeScripter.Common\TypeScripter.Common.csproj">
+      <Project>{9b31f514-32f9-4fc1-9d91-c47ad980ee9e}</Project>
+      <Name>TypeScripter.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Choose>
