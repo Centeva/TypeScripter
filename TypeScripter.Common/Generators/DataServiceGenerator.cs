@@ -32,8 +32,8 @@ namespace TypeScripter.Common.Generators
 			sb.AppendLine("// tslint:disable:member-ordering");
 			sb.AppendLine("import { Injectable } from '@angular/core';");
 			sb.AppendLine(HttpModule == HttpClient ? "import { HttpClient, HttpErrorResponse } from '@angular/common/http';" : "import { Http, Response } from '@angular/http';");
-			sb.AppendLine("import {throwError as observableThrowError,  Observable } from 'rxjs';");
-			sb.AppendLine("import {map, catchError} from 'rxjs/operators';");
+			sb.AppendLine("import { Observable } from 'rxjs';");
+			sb.AppendLine("import { map, catchError } from 'rxjs/operators';");
 			sb.AppendLine("import * as moment from 'moment';");
 
 			var startingImport = "import {";
