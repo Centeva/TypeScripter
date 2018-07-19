@@ -55,16 +55,18 @@ namespace TypeScripter.Common.Generators {
 			var sb = new StringBuilder();
 			var allProps = t.GetAllPropertiesInType();
 			var baseClass = t.BaseType != null && t.BaseType.IsModelType() ? t.BaseType.Name : "";
+            var importTypes = new HashSet<string>();
 
 			// Write import statements
 			if(allProps.Any(p => p.Type.Name == "moment.Moment" || p.Type.Name == "moment.Moment?")) {
 				sb.AppendLine("import * as moment from 'moment';");
 			}
-			if(!string.IsNullOrWhiteSpace(baseClass)) {
-				sb.AppendLine(string.Format("import {{ {0} }} from './{0}';", baseClass));
+			if(!string.IsNullOrWhiteSpace(baseClass))
+			{
+			    importTypes.Add(baseClass);
 			}
-			var importTypes = t.FindChildModelTypeNames();
-
+		    importTypes.UnionWith(t.FindChildModelTypeNames());
+            
 			// If the option is configured, combine the model imports to use the generated index.
 			if (combineImports) {
 				sb.AppendLine("import {");
