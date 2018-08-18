@@ -214,7 +214,7 @@ namespace TypeScripter.Common
 
 		private static IEnumerable<Type> GetModelsFromController(Type controllerType)
 		{
-			var methods = controllerType.GetMethods();
+			var methods = controllerType.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 			var models = methods.SelectMany(GetModelsFromMethod);
 			return models;
 		}
