@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace TypeScripter.Common {
 	public static class Utils {
@@ -21,13 +22,13 @@ namespace TypeScripter.Common {
 		}
 		
 		public static TypeDetails ToTypeScriptType(this Type t) {
-			if(IsModelType(t) || t.IsEnum) {
+			if (IsModelType(t) || t.IsEnum) {
 				return new TypeDetails(t.Name);
 			}
-			if(t == typeof(bool)) {
+			if (t == typeof(bool)) {
 				return new TypeDetails("boolean");
 			}
-			if(t == typeof(byte)
+			if (   t == typeof(byte)
 				|| t == typeof(sbyte)
 				|| t == typeof(ushort)
 				|| t == typeof(short)
@@ -40,20 +41,41 @@ namespace TypeScripter.Common {
 				|| t == typeof(decimal)) {
 				return new TypeDetails("number");
 			}
-			if(t == typeof(string) || t == typeof(char)) {
+			if (t == typeof(string) || t == typeof(char)) {
 				return new TypeDetails("string");
 			}
-			if(t.Name == "List`1" || (t.IsGenericType && typeof(IEnumerable<object>).IsAssignableFrom(t))) {
+			if (t.IsArray) {
+				return new TypeDetails(ToTypeScriptType(t.GetElementType()) + "[]", " = []");
+			}
+			if (t.IsGenericType && IsGenericEnumerable(t)) {
 				return new TypeDetails(ToTypeScriptType(t.GetGenericArguments()[0]) + "[]", " = []");
 			}
-			if(t.Name == "Nullable`1") {
+			if (t.Name == "Nullable`1") {
 				return ToTypeScriptType(t.GetGenericArguments()[0]);
 			}
-			if(t == typeof(DateTime)) {
+			if (t == typeof(DateTime)) {
 				return new TypeDetails("moment.Moment");
+			}
+			if (t.IsGenericType && t.GetGenericArguments().Length == 1)
+			{
+				return ToTypeScriptType(t.GetGenericArguments()[0]);
 			}
 
 			return new TypeDetails("any");
+		}
+
+		private static bool IsGenericEnumerable(Type t)
+		{
+			if (!t.IsGenericType) {
+				return false;
+			}
+			var typeDef = t.GetGenericTypeDefinition();
+			return typeDef != typeof(Dictionary<,>)
+				&& typeDef != typeof(IDictionary<,>)
+				&& (
+					typeDef == typeof(IEnumerable<>) 
+					|| t.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+				);
 		}
 
 		public static bool IsModelType(this Type t) {
