@@ -6,7 +6,9 @@ using System.Text;
 
 namespace TypeScripter.Common.Generators {
 	public static class EntityGenerator {
-		public static List<string> Generate(string targetPath, HashSet<Type> allModels, bool combineImports = false) {
+		public static List<string> Generate(string targetPath, HashSet<Type> allModels, Options options)
+		{
+		  var combineImports = options.CombineImports ?? false;
 			if(!Directory.Exists(targetPath)) {
 				Directory.CreateDirectory(targetPath);
 			}

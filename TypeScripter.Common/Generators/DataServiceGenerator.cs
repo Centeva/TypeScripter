@@ -12,16 +12,21 @@ namespace TypeScripter.Common.Generators
 		public static string HttpClient = "HttpClientModule";
 		public static string Http = "HttpModule";
 
-		public static List<string> Generate(string apiRelativePath, List<Type> apiControllers, HashSet<Type> models, string targetPath, string HttpModule, bool CombineImports = false)
+		public static List<string> Generate(List<Type> apiControllers, HashSet<Type> models, string targetPath, Options options)
 		{
-			if (string.IsNullOrWhiteSpace(apiRelativePath))
+		  var apiRelativePath = options.ApiRelativePath;
+		  var httpModule = options.HttpModule;
+		  var combineImports = options.CombineImports ?? false;
+		  var handleErrors = options.HandleErrors ?? false;
+      
+      if (string.IsNullOrWhiteSpace(apiRelativePath))
 			{
 				return new List<string>();
 			}
 			const string methodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}(`{4}`{5}).pipe(map((res: Response) => {6}), catchError(this.handleError)),";
 			const string clientMethodTemplate = "\t\t{0}: ({1}): Observable<{2}> => this.http.{3}{4}(`{5}`{6}{7}.pipe(catchError(this.handleError)),";
 
-			if (apiRelativePath.EndsWith("/"))
+			if (options.ApiRelativePath.EndsWith("/"))
 			{
 				apiRelativePath = apiRelativePath.Substring(0, apiRelativePath.Length - 1);
 			}
@@ -31,15 +36,15 @@ namespace TypeScripter.Common.Generators
 			sb.AppendLine("// tslint:disable:max-line-length");
 			sb.AppendLine("// tslint:disable:member-ordering");
 			sb.AppendLine("import { Injectable } from '@angular/core';");
-			sb.AppendLine(HttpModule == HttpClient ? "import { HttpClient, HttpErrorResponse } from '@angular/common/http';" : "import { Http, Response } from '@angular/http';");
-			sb.AppendLine("import { Observable } from 'rxjs';");
+			sb.AppendLine(httpModule == HttpClient ? "import { HttpClient, HttpErrorResponse } from '@angular/common/http';" : "import { Http, Response } from '@angular/http';");
+			sb.AppendLine("import { Observable, throwError } from 'rxjs';");
 			sb.AppendLine("import { map, catchError } from 'rxjs/operators';");
 			sb.AppendLine("import * as moment from 'moment';");
 
 			var startingImport = "import {";
 			var endingImport = "} from '.';";
 
-			if (CombineImports)
+			if (combineImports)
 			{
 				sb.AppendLine(string.Format("{0}", startingImport));
 				foreach (var m in models.OrderBy(m => m.Name))
@@ -60,7 +65,7 @@ namespace TypeScripter.Common.Generators
 			sb.AppendLine("@Injectable()");
 			sb.AppendLine("export class DataService {");
 
-			sb.AppendLine(HttpModule == HttpClient ? "\tconstructor(private http: HttpClient) {}" : "\tconstructor(private http: Http) {}");
+			sb.AppendLine(httpModule == HttpClient ? "\tconstructor(private http: HttpClient) {}" : "\tconstructor(private http: Http) {}");
 			sb.AppendLine();
 			sb.AppendLine(string.Format("\tapiRelativePath: string = '{0}';", apiRelativePath));
 			sb.AppendLine();
@@ -93,7 +98,7 @@ namespace TypeScripter.Common.Generators
 						{
 							url = url + "?" + string.Join("&", parameters.Select(GenerateGetString));
 						}
-						if (HttpModule == Http) { sb.AppendFormat(methodTemplate, method.Name.Camelize(), joinedParameters, method.ReturnType.ToTypeScriptType(), httpMethodName, url, "", GetResultMapperExpression(method.ReturnType)); }
+						if (httpModule == Http) { sb.AppendFormat(methodTemplate, method.Name.Camelize(), joinedParameters, method.ReturnType.ToTypeScriptType(), httpMethodName, url, "", GetResultMapperExpression(method.ReturnType)); }
 						else { sb.AppendFormat(clientMethodTemplate, method.Name.Camelize(), joinedParameters, method.ReturnType.ToTypeScriptType(), httpMethodName, AddReturnType(method.ReturnType.ToTypeScriptType()), url, "", AddResponseType(method.ReturnType.ToTypeScriptType())); }
 						sb.AppendLine();
 					}
@@ -105,7 +110,7 @@ namespace TypeScripter.Common.Generators
 						{
 							Console.WriteLine("/* WARNING! Only POST methods with a zero or one parameter are currently supported -- {0}.{1} */", method.DeclaringType, method.Name);
 						}
-						if (HttpModule == Http)
+						if (httpModule == Http)
 						{
 							sb.AppendFormat(methodTemplate,
 							method.Name.Camelize(),
@@ -135,31 +140,41 @@ namespace TypeScripter.Common.Generators
 			}
 
 			sb.AppendLine();
-			sb.AppendLine(HttpModule == Http ? "\tprivate handleError(error: Response | any) {" : "\tprivate handleError(error: HttpErrorResponse | any) {");
-			sb.AppendLine("\t\tlet errMsg: string;");
-			if (HttpModule == Http)
-			{
-				sb.AppendLine("\t\tif (error instanceof Response) {");
-				sb.AppendLine("\t\t\tconst hdr = error.headers.get('ExceptionMessage');");
-				sb.AppendLine("\t\t\tconst body = error.json() || '';");
-				sb.AppendLine("\t\t\tconst err = body.error || JSON.stringify(body);");
-				sb.AppendLine("\t\t\terrMsg = `${error.status}${hdr ? ' - ' + hdr : ''} - ${error.statusText || ''} ${err}`;");
-				sb.AppendLine("\t\t} else {");
-				sb.AppendLine("\t\t\terrMsg = error.message ? error.message : error.toString();");
-				sb.AppendLine("\t\t}");
-			}
-			else
-			{
-				sb.AppendLine("\t\tif (error instanceof HttpErrorResponse) {");
-				sb.AppendLine("\t\t\tconst hdr = error.headers.get('ExceptionMessage');");
-				sb.AppendLine("\t\t\terrMsg = `${error.status}${hdr ? ' - ' + hdr : ''} - ${error.statusText || ''} ${error.error}`;");
-				sb.AppendLine("\t\t} else {");
-				sb.AppendLine("\t\t\terrMsg = error.message ? error.message : error.toString();");
-				sb.AppendLine("\t\t}");
-			}
-			sb.AppendLine("\t\tconsole.error(errMsg);");
-			sb.AppendLine("\t\treturn Observable.throw(errMsg);");
-			sb.AppendLine("\t}");
+			sb.AppendLine(httpModule == Http ? "\tprivate handleError(error: Response | any) {" : "\tprivate handleError(error: HttpErrorResponse | any) {");
+		  if (handleErrors)
+		  {
+		    sb.AppendLine("\t\tlet errMsg: string;");
+		    if (httpModule == Http)
+		    {
+		      sb.AppendLine("\t\tif (error instanceof Response) {");
+		      sb.AppendLine("\t\t\tconst hdr = error.headers.get('ExceptionMessage');");
+		      sb.AppendLine("\t\t\tconst body = error.json() || '';");
+		      sb.AppendLine("\t\t\tconst err = body.error || JSON.stringify(body);");
+		      sb.AppendLine("\t\t\terrMsg = `${error.status}${hdr ? ' - ' + hdr : ''} - ${error.statusText || ''} ${err}`;");
+		      sb.AppendLine("\t\t} else {");
+		      sb.AppendLine("\t\t\terrMsg = error.message ? error.message : error.toString();");
+		      sb.AppendLine("\t\t}");
+		    }
+		    else
+		    {
+		      sb.AppendLine("\t\tif (error instanceof HttpErrorResponse) {");
+		      sb.AppendLine("\t\t\tconst hdr = error.headers.get('ExceptionMessage');");
+		      sb.AppendLine(
+		        "\t\t\terrMsg = `${error.status}${hdr ? ' - ' + hdr : ''} - ${error.statusText || ''} ${error.error}`;");
+		      sb.AppendLine("\t\t} else {");
+		      sb.AppendLine("\t\t\terrMsg = error.message ? error.message : error.toString();");
+		      sb.AppendLine("\t\t}");
+		    }
+
+		    sb.AppendLine("\t\tconsole.error(errMsg);");
+		    sb.AppendLine("\t\treturn throwError(errMsg);");
+		  }
+		  else
+		  {
+		    sb.AppendLine("\t\treturn throwError(error);");
+      }
+
+		  sb.AppendLine("\t}");
 			sb.AppendLine("}");
 
 			Utils.WriteIfChanged(sb.ToString(), Path.Combine(targetPath, "DataService.ts"));
@@ -167,7 +182,7 @@ namespace TypeScripter.Common.Generators
 			return new List<string> { "DataService" };
 		}
 
-		private class ParameterEssentials
+    private class ParameterEssentials
 		{
 			public string Name { get; set; }
 			public Type ParameterType { get; set; }
