@@ -10,7 +10,8 @@ namespace TypeScripter.Common
 		[DataMember] public string[] Files { get; set; }
 		[DataMember] public string[] ControllerBaseClassNames { get; set; }
 		[DataMember] public string ApiRelativePath { get; set; }
-        [DataMember] public string HttpModule { get; set; }
-		[DataMember] public bool CombineImports { get; set; }
-    }
+    [DataMember] public string HttpModule { get; set; }
+		[DataMember] public bool? CombineImports { get; set; }
+	  [DataMember] public bool? HandleErrors { get; set; }
+	}
 }

@@ -70,8 +70,8 @@ namespace TypeScripter.Common
 			var targetPath = AbsolutePath(_options.Destination);
 			// Invoke all generators and pass the results to the index generator
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
-				EntityGenerator.Generate(targetPath, allModels, _options.CombineImports),
-				DataServiceGenerator.Generate(_options.ApiRelativePath, apiControllers, controllerModels, targetPath, _options.HttpModule, _options.CombineImports)
+				EntityGenerator.Generate(targetPath, allModels, _options),
+				DataServiceGenerator.Generate(apiControllers, controllerModels, targetPath, _options)
 			);
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
@@ -117,11 +117,15 @@ namespace TypeScripter.Common
 						{
 							throw new Exception(String.Format("HttpModule must be one of {0} or {1}", DataServiceGenerator.Http, DataServiceGenerator.HttpClient));
 						}
-						if (!_options.CombineImports)
+						if (!_options.CombineImports.HasValue)
 						{
 							_options.CombineImports = false;
 						}
-					}
+					  if (!_options.HandleErrors.HasValue)
+					  {
+					    _options.HandleErrors = true;
+					  }
+          }
 					catch (Exception e)
 					{
 						Console.WriteLine(e.Message);
