@@ -258,3 +258,5 @@ rebuild.cmd
 /.vs/TypeScripter/v14/*.suo
 
 *.ncrunchsolution
+*.ncrunchproject
+/TypeScripter/Properties/launchSettings.json
