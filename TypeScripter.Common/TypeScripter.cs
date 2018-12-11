@@ -109,14 +109,6 @@ namespace TypeScripter.Common
 						{
 							_options.ControllerBaseClassNames = new[] { "ApiController" };
 						}
-						if (string.IsNullOrEmpty(_options.HttpModule))
-						{
-							_options.HttpModule = DataServiceGenerator.Http;
-						}
-						if (_options.HttpModule != DataServiceGenerator.HttpClient && _options.HttpModule != DataServiceGenerator.Http)
-						{
-							throw new Exception(String.Format("HttpModule must be one of {0} or {1}", DataServiceGenerator.Http, DataServiceGenerator.HttpClient));
-						}
 						if (!_options.CombineImports.HasValue)
 						{
 							_options.CombineImports = false;
@@ -154,7 +146,6 @@ namespace TypeScripter.Common
 					ApiRelativePath = apipath != null && apipath.IsString ? (string)apipath.Value : null,
 					Files = files != null && files.IsList && files.AsList.Count == 1 ? ((string)(((ValueObject)files.AsList[0]).Value)).Split(',') : new[] { "*.client.dll" },
 					ControllerBaseClassNames = classnames != null && classnames.IsList && classnames.AsList.Count == 1 ? ((string)(((ValueObject)classnames.AsList[0]).Value)).Split(',') : new[] { "ApiController" },
-					HttpModule = newhttp != null && newhttp.IsTrue ? DataServiceGenerator.HttpClient : DataServiceGenerator.Http,
 					CombineImports = combineImports != null && combineImports.IsTrue ? true : false
 				};
 			}

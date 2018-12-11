@@ -87,7 +87,19 @@ namespace TypeScripter.Common {
 			return isModel;
 		}
 
-		public static Type GetPropertyType(this PropertyInfo pi) {
+        private static readonly HashSet<string> NonModelTypes = 
+            new HashSet<string> {"boolean", "number", "string", "moment.Moment", "any"};
+
+        public static bool IsOrContainsModelType(this Type type)
+	    {
+            // Note: When Enum support is implemented, this code will need to
+            //       be updated to handle enums properly (right now enums act
+            //       like objects)
+	        var typescriptType = ToTypeScriptType(type).Name.Replace("[]", "");
+	        return !NonModelTypes.Contains(typescriptType);
+	    }
+
+	    public static Type GetPropertyType(this PropertyInfo pi) {
 			if(pi.PropertyType.IsGenericType) {
 				return pi.PropertyType.GetGenericArguments()[0];
 			}
