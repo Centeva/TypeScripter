@@ -121,7 +121,8 @@ namespace TypeScripter.Common.Generators {
 				var modelProps = t.GetModelPropertiesInType();
 				var modelItterables = t.GetItterableModelPropertiesInType();
 				sb.AppendLine(string.Join("\n", modelProps.Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = new {1}(fields.{0}); }}", prop.Name, prop.Type))));
-				sb.AppendLine(string.Join("\n", allProps.Where(x => x.Type.Name == "moment.Moment").Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = moment(fields.{0}); }}", prop.Name))));
+				sb.AppendLine(string.Join("\n", allProps.Where(x => x.Type.Name == "moment.Moment" && !x.Type.UtcDate).Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = moment(fields.{0}); }}", prop.Name))));
+				sb.AppendLine(string.Join("\n", allProps.Where(x => x.Type.Name == "moment.Moment" && x.Type.UtcDate).Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = moment.utc(fields.{0}); }}", prop.Name))));
 				sb.AppendLine(string.Join("\n", modelItterables.Select(prop => string.Format("\t\t\tif (fields.{0}) {{ fields.{0} = fields.{0}.map(x => new {1}(x)); }}", prop.Name, prop.Type))));
 
 				sb.AppendLine("\t\t\tObject.assign(this, fields);");

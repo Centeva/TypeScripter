@@ -21,7 +21,7 @@ namespace TypeScripter.Common {
 			return false;
 		}
 		
-		public static TypeDetails ToTypeScriptType(this Type t) {
+		public static TypeDetails ToTypeScriptType(this Type t, PropertyInfo p = null) {
 			if (IsModelType(t) || t.IsEnum) {
 				return new TypeDetails(t.Name);
 			}
@@ -45,20 +45,22 @@ namespace TypeScripter.Common {
 				return new TypeDetails("string");
 			}
 			if (t.IsArray) {
-				return new TypeDetails(ToTypeScriptType(t.GetElementType()) + "[]", " = []");
+				return new TypeDetails(ToTypeScriptType(t.GetElementType(), p) + "[]", " = []");
 			}
 			if (t.IsGenericType && IsGenericEnumerable(t)) {
-				return new TypeDetails(ToTypeScriptType(t.GetGenericArguments()[0]) + "[]", " = []");
+				return new TypeDetails(ToTypeScriptType(t.GetGenericArguments()[0], p) + "[]", " = []");
 			}
 			if (t.Name == "Nullable`1") {
-				return ToTypeScriptType(t.GetGenericArguments()[0]);
+				return ToTypeScriptType(t.GetGenericArguments()[0], p);
 			}
-			if (t == typeof(DateTime)) {
-				return new TypeDetails("moment.Moment");
+			if (t == typeof(DateTime))
+			{
+				var utc = p?.GetCustomAttributes().Any(x => x.GetType().Name == "TypeScripterUtcDateAttribute");
+				return new TypeDetails("moment.Moment"){UtcDate = utc ?? false};
 			}
 			if (t.IsGenericType && t.GetGenericArguments().Length == 1)
 			{
-				return ToTypeScriptType(t.GetGenericArguments()[0]);
+				return ToTypeScriptType(t.GetGenericArguments()[0], p);
 			}
 
 			return new TypeDetails("any");
@@ -112,7 +114,7 @@ namespace TypeScripter.Common {
 
 		public static ClassMemberInfo[] GetAllPropertiesInType(this Type t) {
 			return t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-					.Select(p => new ClassMemberInfo { Name = p.Name, Type = ToTypeScriptType(p.PropertyType) })
+					.Select(p => new ClassMemberInfo { Name = p.Name, Type = ToTypeScriptType(p.PropertyType, p) })
 					.Distinct()
 					.OrderBy(p => p.Name)
 					.ToArray();
@@ -120,7 +122,7 @@ namespace TypeScripter.Common {
 
 		public static ClassMemberInfo[] GetDeclaredPropertiesInType(this Type t) {
 			return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-					.Select(p => new ClassMemberInfo { Name = p.Name, Type = ToTypeScriptType(p.PropertyType) })
+					.Select(p => new ClassMemberInfo { Name = p.Name, Type = ToTypeScriptType(p.PropertyType,p) })
 					.Distinct()
 					.OrderBy(p => p.Name)
 					.ToArray();
@@ -154,7 +156,7 @@ namespace TypeScripter.Common {
 					x.PropertyType.IsGenericType
 					&& typeof(IEnumerable<object>).IsAssignableFrom(x.PropertyType)
 					&& x.PropertyType.GetGenericArguments()[0].IsNotAbstractModelType())
-				.Select(p => new ClassMemberInfo() { Name = p.Name, Type = p.PropertyType.GetGenericArguments()[0].ToTypeScriptType() })
+				.Select(p => new ClassMemberInfo() { Name = p.Name, Type = p.PropertyType.GetGenericArguments()[0].ToTypeScriptType(p:p) })
 				.Distinct()
 				.OrderBy(p => p.Name)
 				.ToArray();
@@ -164,7 +166,7 @@ namespace TypeScripter.Common {
 		public static ClassMemberInfo[] GetModelPropertiesInType(this Type t) {
 			return t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
 					.Where(x => x.PropertyType.IsNotAbstractModelType())
-					.Select(p => new ClassMemberInfo { Name = p.Name, Type = p.PropertyType.ToTypeScriptType() })
+					.Select(p => new ClassMemberInfo { Name = p.Name, Type = p.PropertyType.ToTypeScriptType(p:p) })
 					.Distinct()
 					.OrderBy(p => p.Name)
 					.ToArray();
