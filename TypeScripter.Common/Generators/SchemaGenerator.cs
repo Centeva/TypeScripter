@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -47,28 +48,48 @@ namespace TypeScripter.Common.Generators
                 {
                     var docAttribute = model.GetCustomAttribute<TypescripterDocAttribute>();
 
-                    var memberList = new List<Type>();
-                    memberList.AddRange(model.GetFields().Select(f => f.FieldType));
-                    memberList.AddRange(model.GetProperties().Select(p => p.PropertyType));
+                    Func<T, T> AddToLookup<T>() where T: Type 
+                    {
+                        return t => {
+                            if (!typeLookup.ContainsKey(t.GUID))
+                                typeLookup.Add(t.GUID, t);
+
+                            return t;
+                        };
+                    }
+
+                    
+
+                    var memberList = new List<SchemaFieldModel>();
+                    memberList.AddRange(model.GetFields().Select(f =>
+                    {
+                        if (!typeLookup.ContainsKey(f.FieldType.GUID))
+                            typeLookup.Add(f.FieldType.GUID, f.FieldType);
+                        return f;
+                    }).Select(f => new SchemaFieldModel
+                    {
+                        Id = f.FieldType.GUID,
+                        Name = f.Name,
+                        Description = f.GetCustomAttribute<TypescripterDocAttribute>()?.Description
+                    }));
+                    memberList.AddRange(model.GetProperties().Select(p =>
+                    {
+                        if (!typeLookup.ContainsKey(p.PropertyType.GUID))
+                            typeLookup.Add(p.PropertyType.GUID, p.PropertyType);
+                        return p;
+                    }).Select(p => new SchemaFieldModel
+                    {
+                        Id = p.PropertyType.GUID,
+                        Name = p.Name,
+                        Description = p.GetCustomAttribute<TypescripterDocAttribute>()?.Description
+                    }));
 
                     s.Add(new SchemaModel
                     {
                         Id = model.GUID,
                         Name = model.Name,
                         QualifiedName = model.AssemblyQualifiedName,
-                        Fields = memberList.Select(f =>
-                        {
-                            var propAttribute = f.GetCustomAttribute<TypescripterDocAttribute>();
-                            if(!typeLookup.ContainsKey(f.GUID))
-                                typeLookup.Add(f.GUID, f);
-
-                            return new SchemaFieldModel
-                            {
-                                Id = f.GUID,
-                                Name = f.Name,
-                                Description = propAttribute?.Description
-                            };
-                        }).ToList(),
+                        Fields = memberList.ToList(),
                         Description = docAttribute?.Description,
                         IsClass = model.IsClass
                     });
