@@ -85,8 +85,8 @@ namespace TypeScripter.Common.Generators
             {
                 if(count > 100)
                     throw new Exception("ERROR: Schema generator is caught in a loop!");
-                var missingFields = new HashSet<SchemaFieldModel>(schema.SelectMany(s => s.Fields).Where(f => schema.All(l => l.Id != f.Id)));
-                var missingTypes = typeLookup.Where(t => missingFields.All(f => f.Id == t.Key));
+                var missingFields = new HashSet<Guid>(schema.SelectMany(s => s.Fields.Select(f => f.Id)).Where(fId => schema.All(l => l.Id != fId)));
+                var missingTypes = typeLookup.Where(t => missingFields.Contains(t.Key));
                 schema.AddRange(GetTypes(new HashSet<Type>(missingTypes.Select(t => t.Value))));
                 count++;
                 check = schema.SelectMany(s => s.Fields).Any(f => schema.All(s => s.Id != f.Id));
