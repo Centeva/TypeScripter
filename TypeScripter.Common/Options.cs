@@ -12,5 +12,7 @@ namespace TypeScripter.Common
 		[DataMember] public string ApiRelativePath { get; set; }
 		[DataMember] public bool? CombineImports { get; set; }
 	  [DataMember] public bool? HandleErrors { get; set; }
-	}
+      [DataMember] public bool? GenerateSchemaJson { get; set; }
+      [DataMember] public string SchemaFilePath { get; set; }
+    }
 }

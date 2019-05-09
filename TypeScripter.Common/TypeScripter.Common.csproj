@@ -26,8 +26,19 @@
   <ItemGroup>
     <PackageReference Include="docopt.net" Version="0.6.1.9" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\TypeScripter.Attributes\TypeScripter.Attributes.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\..\Program Files\dotnet\sdk\NuGetFallbackFolder\newtonsoft.json\9.0.1\lib\netstandard1.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net462'">
     <DefineConstants>NET46;NETFULL</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <DocumentationFile>C:\Source\TypeScripter\TypeScripter.Common\TypeScripter.Common.xml</DocumentationFile>
   </PropertyGroup>
 
 </Project>

@@ -72,7 +72,11 @@ namespace TypeScripter.Common
 			var allGeneratedNames = IndexGenerator.Generate(targetPath,
 				EntityGenerator.Generate(targetPath, allModels, _options),
 				DataServiceGenerator.Generate(apiControllers, controllerModels, targetPath, _options)
-			);
+                
+			).Select(n => n + ".ts").ToList();
+
+            allGeneratedNames.AddRange(SchemaGenerator.Generate(targetPath, allModels, _options));
+
 			RemoveNonGeneratedFiles(targetPath, allGeneratedNames);
 
 			Console.WriteLine("Done in {0:N3}s", sw.Elapsed.TotalSeconds);
@@ -117,6 +121,11 @@ namespace TypeScripter.Common
 					  {
 					    _options.HandleErrors = true;
 					  }
+
+                      if (_options.SchemaFilePath == null || _options.SchemaFilePath.Length <= 0)
+                      {
+                          _options.SchemaFilePath = "./Schema.json";
+                      }
           }
 					catch (Exception e)
 					{
@@ -139,6 +148,8 @@ namespace TypeScripter.Common
 				ValueObject classnames = arguments[CommandLineArguments.ClassNames];
 				ValueObject newhttp = arguments[CommandLineArguments.NewHttp];
 				ValueObject combineImports = arguments[CommandLineArguments.CombineImports];
+                ValueObject generateSchemaJson = arguments[CommandLineArguments.GenerateSchemaJson];
+                ValueObject schemaFilePath = arguments[CommandLineArguments.SchemaFilePath];
 				_options = new Options
 				{
 					Source = source != null && source.IsString ? (string)source.Value : "./",
@@ -146,7 +157,9 @@ namespace TypeScripter.Common
 					ApiRelativePath = apipath != null && apipath.IsString ? (string)apipath.Value : null,
 					Files = files != null && files.IsList && files.AsList.Count == 1 ? ((string)(((ValueObject)files.AsList[0]).Value)).Split(',') : new[] { "*.client.dll" },
 					ControllerBaseClassNames = classnames != null && classnames.IsList && classnames.AsList.Count == 1 ? ((string)(((ValueObject)classnames.AsList[0]).Value)).Split(',') : new[] { "ApiController" },
-					CombineImports = combineImports != null && combineImports.IsTrue ? true : false
+					CombineImports = combineImports != null && combineImports.IsTrue ? true : false,
+                    SchemaFilePath = schemaFilePath != null ? schemaFilePath.Value as string : "./Schema.json",
+                    GenerateSchemaJson = generateSchemaJson != null ? generateSchemaJson.IsTrue : false
 				};
 			}
 			return 0;
@@ -293,10 +306,11 @@ namespace TypeScripter.Common
 			var filesToDelete = Directory
 				.GetFiles(targetPath)
 				.Select(Path.GetFileName)
-				.Except(allGeneratedNames.Select(m => m + ".ts"), StringComparer.OrdinalIgnoreCase);
+				.Except(allGeneratedNames.Select(m => m), StringComparer.OrdinalIgnoreCase);
 
 			foreach (var file in filesToDelete)
 			{
+                Console.WriteLine($"Deleting {file}.");
 				File.Delete(Path.Combine(targetPath, file));
 			}
 		}
