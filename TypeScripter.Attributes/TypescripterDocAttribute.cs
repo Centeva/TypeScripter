@@ -2,8 +2,7 @@
 
 namespace TypeScripter.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Enum | AttributeTargets.Method |
-                    AttributeTargets.Interface)]
+    [AttributeUsage(AttributeTargets.All)]
     public class TypescripterDocAttribute : System.Attribute
     {
         public string Description { get; set; }
