@@ -241,13 +241,13 @@ namespace TypeScripter.Common.Generators
 		{
 			if (p.ParameterType == typeof(DateTime))
 			{
-				return string.Format("{0}=${{{0}.toISOString()}}", p.Name);
+				return string.Format("{0}=${{{0} == null ? '' : {0}.toISOString()}}", p.Name);
 			}
 			else if (p.ParameterType.ToTypeScriptType().Name.EndsWith("[]"))
 			{
 				return string.Format("${{{0}.map(x => `{0}=${{x}}`).join('&')}}", p.Name);
 			}
-			return string.Format("{0}=${{{0}}}", p.Name);
+			return string.Format("{0}=${{{0} == null ? '' : {0}}}", p.Name);
 		}
 
 		private static string CombineUri(params string[] parts)
