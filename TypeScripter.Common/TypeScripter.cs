@@ -69,11 +69,21 @@ namespace TypeScripter.Common
 
 			var targetPath = AbsolutePath(_options.Destination);
 			// Invoke all generators and pass the results to the index generator
-			var allGeneratedNames = IndexGenerator.Generate(targetPath,
-				EntityGenerator.Generate(targetPath, allModels, _options),
-				DataServiceGenerator.Generate(apiControllers, controllerModels, targetPath, _options)
-                
-			).Select(n => n + ".ts").ToList();
+			List<string> allGeneratedNames;
+			if(_options.Generator == "react") {
+				allGeneratedNames = IndexGenerator.Generate(targetPath,
+					InterfaceGenerator.Generate(targetPath, allModels, _options),
+					PromiseDataServiceGenerator.Generate(apiControllers, controllerModels, targetPath, _options)
+
+				).Select(n => n + ".ts").ToList();
+			} else {
+				allGeneratedNames = IndexGenerator.Generate(targetPath,
+					EntityGenerator.Generate(targetPath, allModels, _options),
+					DataServiceGenerator.Generate(apiControllers, controllerModels, targetPath, _options)
+
+				).Select(n => n + ".ts").ToList();
+			}
+
 
             allGeneratedNames.AddRange(SchemaGenerator.Generate(targetPath, allModels, _options));
 
@@ -150,6 +160,7 @@ namespace TypeScripter.Common
 				ValueObject combineImports = arguments[CommandLineArguments.CombineImports];
                 ValueObject generateSchemaJson = arguments[CommandLineArguments.GenerateSchemaJson];
                 ValueObject schemaFilePath = arguments[CommandLineArguments.SchemaFilePath];
+				ValueObject generator = arguments[CommandLineArguments.Generator];
 				_options = new Options
 				{
 					Source = source != null && source.IsString ? (string)source.Value : "./",
@@ -159,7 +170,8 @@ namespace TypeScripter.Common
 					ControllerBaseClassNames = classnames != null && classnames.IsList && classnames.AsList.Count == 1 ? ((string)(((ValueObject)classnames.AsList[0]).Value)).Split(',') : new[] { "ApiController" },
 					CombineImports = combineImports != null && combineImports.IsTrue ? true : false,
                     SchemaFilePath = schemaFilePath != null ? schemaFilePath.Value as string : "./Schema.json",
-                    GenerateSchemaJson = generateSchemaJson != null ? generateSchemaJson.IsTrue : false
+                    GenerateSchemaJson = generateSchemaJson != null ? generateSchemaJson.IsTrue : false,
+                    Generator = generator != null ? generator.Value as string : null,
 				};
 			}
 			return 0;
