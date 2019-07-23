@@ -12,5 +12,6 @@
 		public const string CombineImports = "--combineimports";
         public const string GenerateSchemaJson = "--generateSchemaJson";
         public const string SchemaFilePath = "--schemaFilePath";
+		public const string Generator = "--generator";
     }
 }
