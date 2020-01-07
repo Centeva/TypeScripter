@@ -41,7 +41,7 @@ namespace TypeScripter.Common {
 				|| t == typeof(decimal)) {
 				return new TypeDetails("number");
 			}
-			if (t == typeof(string) || t == typeof(char)) {
+			if (t == typeof(string) || t == typeof(char) || t == typeof(Guid)) {
 				return new TypeDetails("string");
 			}
 			if (t.IsArray) {
@@ -128,7 +128,18 @@ namespace TypeScripter.Common {
 					.ToArray();
 		}
 
-		public static ClassMemberInfo[] GetDeclaredConstantsInType(this Type t) {
+		public static ClassMemberInfo[] GetStaticPropertiesForType(this Type t)
+		{
+			var result = t.GetDeclaredConstantsInType();
+			var emitStaticReadonlyMembers = t.GetInterface("ITypeScripterEmitStaticReadonlyMembers") != null;
+			if (emitStaticReadonlyMembers)
+			{
+				result = result.Concat(t.GetStaticReadonlyPropertiesInType()).ToArray();
+			}
+			return result;
+		}
+
+		private static ClassMemberInfo[] GetDeclaredConstantsInType(this Type t) {
 			Type[] allowedTypes = { typeof(int), typeof(string) };
 			return t.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
 				.Where(x => x.IsLiteral && !x.IsInitOnly && allowedTypes.Contains(x.FieldType))
@@ -136,6 +147,21 @@ namespace TypeScripter.Common {
 					Name = p.Name, Type = ToTypeScriptType(p.FieldType), Value = p.GetRawConstantValue().ToString()
 				}).Distinct()
 				.OrderBy(p => p.Name)
+				.ToArray();
+		}
+
+		private static ClassMemberInfo[] GetStaticReadonlyPropertiesInType(this Type t)
+		{
+			return t
+				.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly)
+				.Where(x => x.IsInitOnly)
+				.Select(x => new ClassMemberInfo {
+					Name = x.Name, 
+					Type = ToTypeScriptType(x.FieldType), 
+					Value = x.GetValue(null).ToString()
+				})
+				.Distinct()
+				.OrderBy(x => x.Name)
 				.ToArray();
 		}
 
