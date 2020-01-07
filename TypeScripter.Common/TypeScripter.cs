@@ -68,6 +68,7 @@ namespace TypeScripter.Common
 			Console.WriteLine("Found {0}", allModels.Count);
 
 			var targetPath = AbsolutePath(_options.Destination);
+			Console.WriteLine("Generating to Target Path: " + targetPath);
 			// Invoke all generators and pass the results to the index generator
 			List<string> allGeneratedNames;
 			if(_options.Generator == "react") {
