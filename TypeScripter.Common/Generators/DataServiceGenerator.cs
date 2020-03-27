@@ -168,7 +168,7 @@ namespace TypeScripter.Common.Generators
 			return new List<string> { "DataService" };
 		}
 
-        private class ParameterEssentials
+        internal class ParameterEssentials
 		{
 			public string Name { get; set; }
 			public Type ParameterType { get; set; }
@@ -185,9 +185,9 @@ namespace TypeScripter.Common.Generators
 			}
 		}
 
-		private static readonly HashSet<string> _primitiveTypes = new HashSet<string>{"boolean", "boolean[]", "number", "number[]", "string", "string[]"};
+		private static readonly HashSet<string> _primitiveTypes = new HashSet<string>{"boolean", "boolean[]", "number", "number[]", "string", "string[]", "moment.Moment" };
 		
-		private static ParameterEssentials[] ExpandFromUriParameters(ParameterInfo[] parameters)
+		internal static ParameterEssentials[] ExpandFromUriParameters(ParameterInfo[] parameters)
 		{
 			Func<ParameterEssentials, bool> isPrimitive = p => _primitiveTypes.Contains(p.ParameterType.ToTypeScriptType().Name);
 			Func<ParameterEssentials, bool> isBareParameter = p => isPrimitive(p) || !p.Attributes.Any(_ => _.Name == "FromUriAttribute");

@@ -7,6 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using TypeScripter.Common.Generators;
+using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("Typescripter.Tests")]
 
 namespace TypeScripter.Common
 {
