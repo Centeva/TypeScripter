@@ -2,8 +2,8 @@
   "profiles": {
     "TypeScripter.NetCore": {
       "commandName": "Project",
-      "commandLineArgs": "C:\\dev\\Libraries\\dotnetcorebase\\rZwX8C0O.Client\\typescripter.settings.json",
-      "workingDirectory": "C:\\dev\\Libraries\\dotnetcorebase\\rZwX8C0O.Client"
+      "commandLineArgs": "C:\\dev\\communitypulse\\CommunityPulse.Client\\typescripter.settings.windows.json",
+      "workingDirectory": "C:\\dev\\communitypulse\\CommunityPulse.Client"
     }
   }
 }
